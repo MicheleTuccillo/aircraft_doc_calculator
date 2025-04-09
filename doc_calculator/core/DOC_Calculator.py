@@ -1,5 +1,4 @@
-from datetime import datetime
-import pandas as pd
+from doc_calculator.core.utils.util_functions import _assign_input
 import numpy as np
 import math
 
@@ -96,13 +95,12 @@ class DOC():
         - f_emb      (times/BH)    Maintenance frequency for electric machine(s) Base Maint.
 
         - enerpri      (USD/kWh)   Electricity price 
-        - ener_req  (kWh)   Electricity Requirement (from battery)
-        - h2_pri         (USD/kg)   H2 price
-        - h2_req (kg)       H2 requirements
+        - ener_req  (kWh)          Electricity Requirement (from battery)
+        - h2_pri         (USD/kg)  H2 price
+        - h2_req (kg)              H2 requirements
         
         """
-
-        self.input_dict      = input_dict
+        self.input_dict      = _assign_input(input=input_dict)
         self.doc             = {} # DOC 
         self.ioc             = {} # IOC
 
@@ -175,7 +173,7 @@ class DOC():
         self.doc["NOISE CHARGES [USD/BHR]"]          = noise_charges
         self.doc["NOX EMISSION CHARGES [USD/BHR]"]   = nox_emission_charges
         self.doc["CO EMISSION CHARGES [USD/BHR]"]    = co_emission_charges
-        self.doc["co2_value EMISSION CHARGES [USD/BHR]"]   = co2_emission_charges
+        self.doc["CO2 EMISSION CHARGES [USD/BHR]"]   = co2_emission_charges
         self.doc["AIRFRANE MAINTENANCE [USD/BHR]"]   = airframe_maintenance
         self.doc["THERM. ENG. MAINTENANCE [USD/BH]"] = thermal_engine_maintenance
 

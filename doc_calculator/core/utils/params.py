@@ -1,3 +1,8 @@
+AEC = 0.15
+ENR = 68.5
+LANDINGUR = 10.0 
+
+
 default_dict = {"ADP": 0.0,
         "HTONN": 0.0,
         "MTOW": 0.0,
@@ -35,7 +40,7 @@ default_dict = {"ADP": 0.0,
         "NOX_VALUE":0.0,
         "CCO": 0.0,
         "CO_VALUE": 0.0,
-        "AEC": 0.0,
+        "AEC": AEC,
         "PRICO2": 0.0,
         "CO2_VALUE": 0.0, 
         "ENERPRI": 0.0,

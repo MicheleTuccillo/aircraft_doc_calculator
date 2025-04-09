@@ -1,6 +1,6 @@
 import os
 import sys
-#sys.path.append(os.getcwd())
+sys.path.append(os.getcwd())
 from doc_calculator.core.DOC_Calculator import DOC
 
 def main() -> None:
@@ -83,7 +83,7 @@ def main() -> None:
     }
 
     # create an instance of the DOC calculator
-    doc_calc_object = DOC(input_dict=input_dict)
+    doc_calc_object = DOC(input_dict)
 
     # calculate operating costs
     doc_calc_object.calculate_doc()

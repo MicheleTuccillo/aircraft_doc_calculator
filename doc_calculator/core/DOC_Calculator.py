@@ -1,4 +1,5 @@
 from doc_calculator.core.utils.util_functions import _assign_input
+from doc_calculator.core.utils.params import ENR, LANDINGUR 
 import numpy as np
 import math
 
@@ -107,9 +108,7 @@ class DOC():
         return None
     
     def calculate_doc(self) -> None:
-        bt     = self.input_dict["bt"]
-        pld    = self.input_dict["pld"]
-        sector = self.input_dict["sector"]
+        bt = self.input_dict["bt"]
 
         # Financial Costs [USD/BHR]
         self.doc["FINANCIAL [USD/BHR]"]      = self.__calculate_financial_cost()
@@ -196,7 +195,6 @@ class DOC():
         return cash_operating_cost
     
     def __calculate_financial_cost(self) -> float:
-
         depr     = self.__calculate_depreciation()
         interest = self.__calculate_interest()
 
@@ -207,9 +205,9 @@ class DOC():
         return financial
     
     def __calculate_co2_emission_charges(self) -> float:
-        aec    = self.input_dict["aec"]   # portion of free Allocated Emission Certificate (0.15]
-        co2_value    = self.input_dict["co2_value"]    # mass of co2_value [kg]
-        prico2 = self.input_dict["prico2"] # unitary price of co2_value emitted [USD/kg]
+        aec = self.input_dict["aec"]   
+        co2_value = self.input_dict["co2_value"]    
+        prico2 = self.input_dict["prico2"]
         bt     = self.input_dict["bt"] 
 
         co2_emission_charges = (1.0-aec)*co2_value*prico2/bt
@@ -276,9 +274,9 @@ class DOC():
         return electric_machine_maint_line, electric_machine_maint_base
     
     def __calculate_airframe_maintenance_cost(self) -> float:
-        n_bat      = self.input_dict["n_bat"]         
-        n_em       = self.input_dict["n_em"]
-        n_fc       = self.input_dict["n_fc"]
+        n_bat     = self.input_dict["n_bat"]         
+        n_em      = self.input_dict["n_em"]
+        n_fc      = self.input_dict["n_fc"]
         batprice  = self.input_dict["batprice"]
         fcprice   = self.input_dict["fcprice"]
         emprice   = self.input_dict["emprice"]
@@ -288,7 +286,7 @@ class DOC():
         enpri     = self.input_dict["enpri"]
         mew       = self.input_dict["mew"]
         bengw     = self.input_dict["bengw"]
-        labor_rate        = self.input_dict["labor_rate"]
+        labor_rate = self.input_dict["labor_rate"]
 
         M   = 1.0 # Mach Number (Assumed 1 for subsonic cruise)
         FT  = bt - 0.25
@@ -380,14 +378,14 @@ class DOC():
         bt     = self.input_dict["bt"]
         sector = self.input_dict["sector"]
 
-        nav_charges = (68.5*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
+        nav_charges = (ENR*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
         return nav_charges
     
     def __calculate_landing_fees(self) -> float:
         mtow = self.input_dict["mtow"]
         bt   = self.input_dict["bt"]
 
-        landing_fees = (10.0*mtow)/bt
+        landing_fees = (LANDINGUR*mtow)/bt
         return landing_fees
 
     def __calculate_cabin_crew_cost(self) -> float:

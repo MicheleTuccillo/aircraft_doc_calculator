@@ -41,9 +41,9 @@ class DOC():
         - rinsh   (fraction of adp)   Insurance rate in [0.0  1.0]
         - crtechr  (USD/BHR)          Tech. crew members (pilots) hourly tot.cost
         - crcabhr  (USD/BHR/Att )     Cab. crew member hourly cost
-        - labor_rate       (USD/MHR)          Maintenance Labour rate
+        - labor_rate       (USD/MHR)  Maintenance Labour rate
         - fuelpri  (USD/US GAL)       Fuel Price
-        - ioc_fact                      Coeff. for IOC evaluation in [0.0  Inf)
+        - ioc_fact                    Coeff. for IOC evaluation in [0.0  Inf)
         - util     (BHR/Annum)        Aircraft Annual Utilisation
         - lifespan                    Lifespan of the aircraft (years)
         - td       (EPNdB)            Departure airport threshold noise
@@ -64,41 +64,41 @@ class DOC():
         - co2_value      (kg)      Mass of Emitted CO2, in kilograms
         - prico2   (USD/kg)        co2_value price for unit of emitted co2_value mass
 
-        - n_bat                     Number of batteries pack     
-        - NFC                      Number of fuel cells
-        - NREPBAT                  Number of battery(ies) replacement during the aircraft lifespan
-        - BATPRICE  (USD)          Battery(ies) price [USD]
-        - RVBAT     (USD)          Battery(ies) residual value (at the end of its own life) [USD]
-        - LRBAT     (USD/MMH)      Maintenance labor rate for battery(ies)
-        - TLBAT     (MMH)          Maintenance man-hour for battery(ies) [hours]
-        - FBAT                     Maintenance frequency for battery(ies) - as the reciprocal of the number of flights before the next check
-        - NREPFC                   Number of fuel cell(s) replacement during the aircraft lifespan
-        - FCPRICE   (USD)          Fuel Cell price [USD]
-        - RVFC      (USD)          Fuel Cell(s) residual value (at the end of its own life) [USD]
-        - LRFC      (USD/MMH)      Maintenance labor rate for fuel cell(s)
-        - TLFC      (MMH)          Maintenance man-hour for fuel cell(s) [hours]
-        - FFC                      Maintenance frequency for fuel cell(s) - as the reciprocal of the number of flights before the next check
-        - NREPPE                   Number of power electronics replacement during the aircraft lifespan
-        - PEPRICE   (USD)          Power electronics price [USD]
-        - RVPE      (USD)          Power electronics residual value (at the end of its own life) [USD]
-        - LRPE      (USD/MMH)      Maintenance labor rate for power electronics
-        - TLPE      (MMH)          Maintenance man-hour for power electronics [hours]
-        - FPE                      Maintenance frequency for power electronics - as the reciprocal of the number of flights before the next check
+        - n_bat                    Number of batteries pack     
+        - n_fc                     Number of fuel cells
+        - n_repbat                 Number of battery(ies) replacement during the aircraft lifespan
+        - batprice  (USD)          Battery(ies) price [USD]
+        - rvbat     (USD)          Battery(ies) residual value (at the end of its own life) [USD]
+        - lrbat     (USD/MMH)      Maintenance labor rate for battery(ies)
+        - tlbat     (MMH)          Maintenance man-hour for battery(ies) [hours]
+        - f_bat                    Maintenance frequency for battery(ies) - as the reciprocal of the number of flights before the next check
+        - n_repfc                  Number of fuel cell(s) replacement during the aircraft lifespan
+        - fcprice   (USD)          Fuel Cell price [USD]
+        - rvfc      (USD)          Fuel Cell(s) residual value (at the end of its own life) [USD]
+        - lrfc      (USD/MMH)      Maintenance labor rate for fuel cell(s)
+        - tlfc      (MMH)          Maintenance man-hour for fuel cell(s) [hours]
+        - f_fc                     Maintenance frequency for fuel cell(s) - as the reciprocal of the number of flights before the next check
+        - n_reppe                  Number of power electronics replacement during the aircraft lifespan
+        - peprice   (USD)          Power electronics price [USD]
+        - rvpe      (USD)          Power electronics residual value (at the end of its own life) [USD]
+        - lrpe      (USD/MMH)      Maintenance labor rate for power electronics
+        - tlpe      (MMH)          Maintenance man-hour for power electronics [hours]
+        - f_pe                     Maintenance frequency for power electronics - as the reciprocal of the number of flights before the next check
 
-        - NEM                      Number of electric machines
-        - EMPRICE   (USD)          Price of a single electric machine
-        - LREM      (USD/MMH)      Maintenance labor rate for electric machine(s)
-        - SPEML     (USD)          Spare Parts Cost Line Maintenance electric machine
-        - SPEMB     (USD)          Spare Parts Cost Base Maintenance electric machine (If not known -> Assumption: SPEMB = 9.5*SPEML)
-        - TLEML     (MMH)          Maintenance man-hour for line maintenance electric machine(s) [hours]
-        - TLEMB     (MMH)          Maintenance man-hour for base maintenance electric machine(s) [hours]
-        - FEML      (times/YR)     Maintenance frequency for electric machine(s) Line Maint.
-        - FEMB      (times/BH)     Maintenance frequency for electric machine(s) Base Maint.
+        - n_em                     Number of electric machines
+        - emprice   (USD)          Price of a single electric machine
+        - lrem      (USD/MMH)      Maintenance labor rate for electric machine(s)
+        - speml     (USD)          Spare Parts Cost Line Maintenance electric machine
+        - spemb     (USD)          Spare Parts Cost Base Maintenance electric machine (If not known -> Assumption: spemb = 9.5*speml)
+        - tleml     (MMH)          Maintenance man-hour for line maintenance electric machine(s) [hours]
+        - tlemb     (MMH)          Maintenance man-hour for base maintenance electric machine(s) [hours]
+        - f_eml      (times/YR)    Maintenance frequency for electric machine(s) Line Maint.
+        - f_emb      (times/BH)    Maintenance frequency for electric machine(s) Base Maint.
 
-        - ENERPRI      (USD/kWh)   Electricity price 
-        - ENERREQUIREMENT  (kWh)   Electricity Requirement (from battery)
-        - H2PRI         (USD/kg)   H2 price
-        - H2REQUIREMENT (kg)       H2 requirements
+        - enerpri      (USD/kWh)   Electricity price 
+        - ener_req  (kWh)   Electricity Requirement (from battery)
+        - h2_pri         (USD/kg)   H2 price
+        - h2_req (kg)       H2 requirements
         
         """
 
@@ -219,71 +219,71 @@ class DOC():
     
     def __calculate_battery_maintenance_cost(self) -> tuple[float, float]:
         n_bat     = self.input_dict["n_bat"]
-        NREPBAT  = self.input_dict["NREPBAT"]
-        BATPRICE = self.input_dict["BATPRICE"]
-        RVBAT    = self.input_dict["RVBAT"]
-        LRBAT    = self.input_dict["LRBAT"]
-        TLBAT    = self.input_dict["TLBAT"]
-        FBAT     = self.input_dict["FBAT"]
+        n_repbat  = self.input_dict["n_repbat"]
+        batprice = self.input_dict["batprice"]
+        rvbat    = self.input_dict["rvbat"]
+        lrbat    = self.input_dict["lrbat"]
+        tlbat    = self.input_dict["tlbat"]
+        f_bat     = self.input_dict["f_bat"]
         lifespan = self.input_dict["lifespan"]
         util     = self.input_dict["util"]
 
-        battery_maint_line = n_bat*LRBAT*TLBAT*FBAT
-        battery_maint_base = n_bat*(NREPBAT*(BATPRICE-RVBAT))/(lifespan*util) # replace
+        battery_maint_line = n_bat*lrbat*tlbat*f_bat
+        battery_maint_base = n_bat*(n_repbat*(batprice-rvbat))/(lifespan*util) # replace
         return battery_maint_line, battery_maint_base
     
     def __calculate_fuel_cell_maintenance_cost(self) -> tuple[float, float]:
-        NFC      = self.input_dict["NFC"]
-        NREPFC   = self.input_dict["NREPFC"]
-        FCPRICE  = self.input_dict["FCPRICE"]
-        RVFC     = self.input_dict["RVFC"]
-        LRFC     = self.input_dict["LRFC"]
-        TLFC     = self.input_dict["TLFC"]
-        FFC      = self.input_dict["FFC"]
+        n_fc      = self.input_dict["n_fc"]
+        n_repfc   = self.input_dict["n_repfc"]
+        fcprice  = self.input_dict["fcprice"]
+        rvfc     = self.input_dict["rvfc"]
+        lrfc     = self.input_dict["lrfc"]
+        tlfc     = self.input_dict["tlfc"]
+        f_fc      = self.input_dict["f_fc"]
         lifespan = self.input_dict["lifespan"]
         util     = self.input_dict["util"]
 
-        fuel_cell_maint_line = NFC*LRFC*TLFC*FFC
-        fuel_cell_maint_base = NFC*(NREPFC*(FCPRICE-RVFC))/(lifespan*util) # replace
+        fuel_cell_maint_line = n_fc*lrfc*tlfc*f_fc
+        fuel_cell_maint_base = n_fc*(n_repfc*(fcprice-rvfc))/(lifespan*util) # replace
         return fuel_cell_maint_line, fuel_cell_maint_base
     
     def __calculate_power_electronic_maintenance_cost(self) -> tuple[float, float]:
-        NREPPE   = self.input_dict["NREPPE"]
-        PEPRICE  = self.input_dict["PEPRICE"]
-        RVPE     = self.input_dict["RVPE"]
-        LRPE     = self.input_dict["LRPE"]
-        TLPE     = self.input_dict["TLPE"]
-        FPE      = self.input_dict["FPE"]
+        n_reppe   = self.input_dict["n_reppe"]
+        peprice  = self.input_dict["peprice"]
+        rvpe     = self.input_dict["rvpe"]
+        lrpe     = self.input_dict["lrpe"]
+        tlpe     = self.input_dict["tlpe"]
+        f_pe      = self.input_dict["f_pe"]
         lifespan = self.input_dict["lifespan"]
         util     = self.input_dict["util"]
 
-        power_electronic_maint_line = LRPE*TLPE*FPE
-        power_electronic_maint_base = (NREPPE*(PEPRICE-RVPE))/(lifespan*util) # replace
+        power_electronic_maint_line = lrpe*tlpe*f_pe
+        power_electronic_maint_base = (n_reppe*(peprice-rvpe))/(lifespan*util) # replace
         return power_electronic_maint_line, power_electronic_maint_base
 
     def __calculate_electric_machine_maintenance_cost(self) -> tuple[float, float]:
-        NEM      = self.input_dict["NEM"]     
-        SPEML    = self.input_dict["SPEML"]       # spare parts cost line maintenance
-        SPEMB    = self.input_dict["SPEMB"]       # spare parts cost base maintenance
-        LREM     = self.input_dict["LREM"]
-        TLEML    = self.input_dict["TLEML"]       # maintenance man hour line maint.
-        TLEMB    = self.input_dict["TLEMB"]       # maintenance man hour base maint.
-        FEML     = self.input_dict["FEML"]        # maintenance frequency line maint
-        FEMB     = self.input_dict["FEMB"]        # maintenance frequency base maint
+        n_em      = self.input_dict["n_em"]     
+        speml    = self.input_dict["speml"]       # spare parts cost line maintenance
+        spemb    = self.input_dict["spemb"]       # spare parts cost base maintenance
+        lrem     = self.input_dict["lrem"]
+        tleml    = self.input_dict["tleml"]       # maintenance man hour line maint.
+        tlemb    = self.input_dict["tlemb"]       # maintenance man hour base maint.
+        f_eml     = self.input_dict["f_eml"]        # maintenance frequency line maint
+        f_emb     = self.input_dict["f_emb"]        # maintenance frequency base maint
         lifespan = self.input_dict["lifespan"]
         util     = self.input_dict["util"]
         
-        electric_machine_maint_line = NEM*(SPEML + LREM*TLEML)*lifespan*FEML/util
-        electric_machine_maint_base = NEM*(SPEMB + LREM*TLEMB)*FEMB*0.80
+        electric_machine_maint_line = n_em*(speml + lrem*tleml)*lifespan*f_eml/util
+        electric_machine_maint_base = n_em*(spemb + lrem*tlemb)*f_emb*0.80
         return electric_machine_maint_line, electric_machine_maint_base
     
     def __calculate_airframe_maintenance_cost(self) -> float:
         n_bat      = self.input_dict["n_bat"]         
-        NEM       = self.input_dict["NEM"]
-        NFC       = self.input_dict["NFC"]
-        BATPRICE  = self.input_dict["BATPRICE"]
-        FCPRICE   = self.input_dict["FCPRICE"]
-        EMPRICE   = self.input_dict["EMPRICE"]
+        n_em       = self.input_dict["n_em"]
+        n_fc       = self.input_dict["n_fc"]
+        batprice  = self.input_dict["batprice"]
+        fcprice   = self.input_dict["fcprice"]
+        emprice   = self.input_dict["emprice"]
         bt        = self.input_dict["bt"]
         adp       = self.input_dict["adp"]
         en        = self.input_dict["en"]
@@ -296,8 +296,8 @@ class DOC():
         FT  = bt - 0.25
         AFW = mew-(bengw*en)
 
-        C_A_FH = 3.08*(adp - en*enpri - n_bat*BATPRICE/1.0e6 - NEM*EMPRICE/1.0e6 - NFC*FCPRICE/1.0e6)
-        C_A_FC = 6.24*(adp - en*enpri - n_bat*BATPRICE/1.0e6 - NEM*EMPRICE/1.0e6 - NFC*FCPRICE/1.0e6)
+        C_A_FH = 3.08*(adp - en*enpri - n_bat*batprice/1.0e6 - n_em*emprice/1.0e6 - n_fc*fcprice/1.0e6)
+        C_A_FC = 6.24*(adp - en*enpri - n_bat*batprice/1.0e6 - n_em*emprice/1.0e6 - n_fc*fcprice/1.0e6)
         K_A_FC = 0.05*AFW*2.2 + 6 - 630.0/(AFW*2.2 + 120.0)
         K_A_FH = 0.59*K_A_FC
         
@@ -407,19 +407,19 @@ class DOC():
         return cockpit_crew
     
     def __calculate_h2_price(self) -> None:
-        H2PRI         = self.input_dict["H2PRI"]
-        H2REQUIREMENT = self.input_dict["H2REQUIREMENT"]
+        h2_pri         = self.input_dict["h2_pri"]
+        h2_req = self.input_dict["h2_req"]
         bt            = self.input_dict["bt"]
 
-        h2_price = H2PRI*H2REQUIREMENT/bt
+        h2_price = h2_pri*h2_req/bt
         return h2_price
     
     def __calculate_electric_energy_price(self) -> None:
-        ENERPRI         = self.input_dict["ENERPRI"]
-        ENERREQUIREMENT = self.input_dict["ENERREQUIREMENT"]
+        enerpri         = self.input_dict["enerpri"]
+        ener_req = self.input_dict["ener_req"]
         bt              = self.input_dict["bt"]
 
-        electric_energy_price = ENERREQUIREMENT*ENERPRI/bt
+        electric_energy_price = ener_req*enerpri/bt
         return electric_energy_price
     
     def __calculate_fuel_cost(self) -> float:

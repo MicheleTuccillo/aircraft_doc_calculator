@@ -7,12 +7,26 @@
 - Compute **Direct Operating Costs (DOC)** and **Indirect Operating Costs (IOC)**
 - Supports both **conventional** and **hybrid-electric** propulsion systems
 - Cost modules for:
-  - **Fuel**, **Electricity**, and **Hydrogen** consumption
+  - **Fuel**, **Electricity** and **Hydrogen** consumption
+  - Financial costs anlsysis including **Depreciation**, **Interests** and **Insurance**
+  - Charges and Fees:
+    - Landing
+    - Payload Handling
+    - Navigation
+    - Noise Emissions
+    - CO Emissions
+    - NOx Emissions
+    - CO2 Emissions
   - Maintenance costs for:
-    - Propulsive batteries
-    - Fuel cells
-    - Electric machines
-    - Power electronics
+    - Airframe
+    - Turboprop Engines
+    - Propulsive Batteries
+    - Fuel Cells
+    - Electric Machines
+    - Power Electronics
+  - Crew Handling costs:
+    - Pilots costs
+    - Cabin Crew costs  
 
 ## 🛠️ Installation
 
@@ -20,3 +34,10 @@ Install the package using `pip`:
 
 ```bash
 pip install doc_calculator
+
+## ✉️ Contact
+
+For questions, support, or suggestions, feel free to reach out:
+
+📧 Email: michele.tuccillo@gmail.com
+🐛 Report issues: GitHub Issues

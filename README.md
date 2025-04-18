@@ -41,4 +41,5 @@ pip install doc_calculator
 For questions, support, or suggestions, feel free to reach out:
 
 📧 Email: michele.tuccillo@gmail.com
+
 🐛 Report issues: GitHub Issues

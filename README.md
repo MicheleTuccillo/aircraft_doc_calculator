@@ -37,7 +37,7 @@ pip install doc_calculator
 ```
 ## 📚 References / Citation
 
-If you use 'doc_calculator' for academic or research purposes, please cite it as:
+If you use `doc_calculator` for academic or research purposes, please cite it as:
 
 ```latex
 @software{doc_calculator,

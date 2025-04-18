@@ -35,6 +35,21 @@ Install the package using `pip`:
 ```bash
 pip install doc_calculator
 ```
+## 📚 References / Citation
+
+If you use 'doc_calculator' for academic or research purposes, please cite it as:
+
+```latex
+@software{doc_calculator,
+  author       = {Your Name and Contributors},
+  title        = {doc_calculator: A Python tool for aircraft direct and indirect operating cost modeling},
+  year         = {2025},
+  publisher    = {GitHub},
+  journal      = {GitHub Repository},
+  howpublished = {\url{https://github.com/yourusername/doc_calculator}},
+  version      = {v1.0}
+}
+```
 
 ## ✉️ Contact
 

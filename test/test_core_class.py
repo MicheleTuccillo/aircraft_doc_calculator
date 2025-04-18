@@ -2,13 +2,13 @@ import os
 import sys
 sys.path.append(os.getcwd())
 from doc_calculator.core.DOC_Calculator import DOC
+from doc_calculator.core.utils.params import Params 
 
 def main() -> None:
 
     # Data for regional turboprop
     input_dict = {
         "ADP": 22.0,
-        "HTONN": 45.0,
         "MTOW": 23.0,
         "PLD": 7.25,
         "MEW": 13.20,
@@ -44,7 +44,6 @@ def main() -> None:
         "NOX_VALUE":0.0,
         "CCO": 3.7,
         "CO_VALUE": 0.0,
-        "AEC": 0.15,
         "PRICO2": 0.0215,
         "CO2_VALUE": 1875.0, 
         "ENERPRI": 0.0,
@@ -82,15 +81,20 @@ def main() -> None:
         "F_EMB": 0.0
     }
 
+    # assign Coefficient of cost of handling per tonn
+    parameters = Params()
+    parameters.HTONN = 150.0
+
     # create an instance of the DOC calculator
-    doc_calc_object = DOC(input_dict)
+    doc_calc_object = DOC(input_dict, params=parameters)
 
     # calculate operating costs
-    doc_calc_object.calculate_doc()
-    doc_calc_object.calculate_ioc()
+    doc_dict = doc_calc_object.calculate_doc()
+    ioc_dict = doc_calc_object.calculate_ioc()
+
 
     # display 
-    for key, value in doc_calc_object.doc.items():
+    for key, value in doc_dict.items():
         print(f"{key}\t{value:.2f}")
 
     return None

@@ -1,10 +1,23 @@
-AEC = 0.15
-ENR = 68.5
-LANDINGUR = 10.0 
+from dataclasses import dataclass
 
+@dataclass
+class Params():
+    """
+    ### Description
+    The dataclass stores the main unit rates
+    
+    - AEC: Portion of free allocated certificate for CO2 emissions.
+    - ENR: Enroute navigation charges unit rate.
+    - LANDINGUR: Landing charge unit rate.
+    - HTONN: Coefficient of cost of handling per tonn of payload
+    """
+    
+    AEC: float = 0.15
+    ENR: float = 68.5
+    LANDINGUR: float = 10.0
+    HTONN: float = 45.0
 
 default_dict = {"ADP": 0.0,
-        "HTONN": 0.0,
         "MTOW": 0.0,
         "PLD": 0.,
         "MEW": 0.0,
@@ -40,7 +53,6 @@ default_dict = {"ADP": 0.0,
         "NOX_VALUE":0.0,
         "CCO": 0.0,
         "CO_VALUE": 0.0,
-        "AEC": AEC,
         "PRICO2": 0.0,
         "CO2_VALUE": 0.0, 
         "ENERPRI": 0.0,

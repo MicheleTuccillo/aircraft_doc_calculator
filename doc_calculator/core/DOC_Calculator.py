@@ -1,20 +1,19 @@
 from doc_calculator.core.utils.util_functions import _assign_input
-from doc_calculator.core.utils.params import ENR, LANDINGUR 
+from doc_calculator.core.utils.params import Params 
 import numpy as np
 import math
 
 class DOC():
-    def __init__(self, input_dict:dict) -> None:
+    def __init__(self, input_dict:dict, **kwargs) -> None:
         """
         ### Description
         This code enables to evaluate Direct and Total Operating Costs
         for Short/Medium haul airliners and regional aircraft (jet and
         propeller driven ).
 
-        ### List of variables:
+        ### Input Dict Keys
+        List of variables composing the input dict (case insensitive):
         - adp    (USD M)   Aircraft Delivery Price
-        - htonn  (USD/T)   Coefficient of cost of handling per tonn
-
 
         - mtow  (Tonns)    Max Take-off Weight
         - pld   (Tonns)    Payload
@@ -28,11 +27,9 @@ class DOC():
         - bf      (KG)     Sector Block Fuel
         - sector  (NM)     Sector assumed for DOCs evaluation
 
-
         - ieng             Engine maintenance cost flag (1=Calculate, 2=Assigned in eoc parameter)
         - eoc    (USD/BHR) Engine overhaul cost (Necessary for ieng=2)
         - shp    (HP)      Thermal Engine Shaft Horse Power (Necessary for ieng=1)
-
 
         - afspare (fraction of adp)   Airframe spares in [0.0  1.0]
         - enspare (fraction of enpri) Spare engines and spares in [0.0  1.0]
@@ -53,14 +50,12 @@ class DOC():
         - l_flyov (EPNdB)             Certified noise level at the fly-over measure point
         - cnoise  (USD)               Unit noise rate (Noise tariff that depends on the airport)
 
-
         - cnox     (USD)           Unit rate for NOX (generally referred to nitrogen oxides) (Emission tariff that depends on the airport)
         - nox_value (Kg)           Emission value of NOX. Equivalent of nitrogen oxide exhausted by an aircraft,
                                    in kilogram, in the "Landing and Take-Off Cycle, LTO
         - cco     (USD)            Unit rate for CO (generally referred to nitrogen oxides) (Emission tariff that depends on the airport)
         - co_value (Kg)            Emission value of CO. Equivalent of carbon monoxide exhausted by an aircraft, 
                                    in kilogram, in the "Landing and Take-Off Cycle, LTO
-        - aec                      Portion of free Allocated Emission Certificate (tip: 0.15)
         - co2_value      (kg)      Mass of Emitted CO2, in kilograms
         - prico2   (USD/kg)        co2_value price for unit of emitted co2_value mass
 
@@ -102,44 +97,53 @@ class DOC():
         
         """
         self.input_dict      = _assign_input(input=input_dict)
-        self.doc             = {} # DOC 
-        self.ioc             = {} # IOC
+
+        if kwargs:
+            self.__params = kwargs["params"]
+        else:
+            self.__params = Params()
 
         return None
     
-    def calculate_doc(self) -> None:
+    def calculate_doc(self) -> dict:
         bt = self.input_dict["bt"]
 
+        doc = {}
+
         # Financial Costs [USD/BHR]
-        self.doc["FINANCIAL [USD/BHR]"]      = self.__calculate_financial_cost()
+        financial_costs = self.__calculate_financial_cost()
+
         # Cash Operating Costs [USD/BHR]
-        self.doc["CASH OPERATING [USD/BHR]"] = self.__calculate_cash_operating_cost()
+        cash_operating_costs = self.__calculate_cash_operating_cost()
 
         # DOC [USD/BHR]
-        self.doc["DOC [USD/BHR]"] = self.doc["FINANCIAL [USD/BHR]"] + self.doc["CASH OPERATING [USD/BHR]"]
-        # DOC [USD/trip]
-        self.doc["DOC [USD/trip]"] = bt*self.doc["DOC [USD/BHR]"]
+        doc = {**financial_costs, **cash_operating_costs}
+        doc["DOC [USD/BHR]"] = sum(financial_costs.values()) + sum(cash_operating_costs.values())
 
-        return None
+        # DOC [USD/flight]
+        doc["DOC [USD/flight]"] = bt*doc["DOC [USD/BHR]"]
+
+        return doc
         
-    def calculate_ioc(self) -> None:
+    def calculate_ioc(self) -> dict:
         ioc_fact = self.input_dict["ioc_fact"]
         bt     = self.input_dict["bt"]
+
+        ioc = {}
 
         # Cash Operating Costs [USD/BHR]
         cash_operating_cost = self.__calculate_cash_operating_cost()
 
         # Indirect Operating Costs [USD/BHR]
-        self.ioc["IOC [USD/BHR]"] = ioc_fact*cash_operating_cost
+        ioc["IOC [USD/BHR]"] = ioc_fact*sum(cash_operating_cost.values())
 
-        # Indirect Operating Costs [USD/trip]
-        self.ioc["IOC [USD/trip]"] = bt*self.ioc["IOC [USD/BHR]"]
+        # Indirect Operating Costs [USD/flight]
+        ioc["IOC [USD/flight]"] = bt*ioc["IOC [USD/BHR]"]
 
-        return None
+        return ioc
     
-    def __calculate_cash_operating_cost(self) -> float:
+    def __calculate_cash_operating_cost(self) -> dict:
 
-        insurance                       = self.__calculate_insurance_cost()
         fuel                            = self.__calculate_fuel_cost()
         electric_energy                 = self.__calculate_electric_energy_price()
         h2                              = self.__calculate_h2_price()
@@ -160,57 +164,53 @@ class DOC():
         fuelcell_maint_line, fuelcell_maint_base                    = self.__calculate_fuel_cell_maintenance_cost()
         power_elec_maint_line, power_elec_maint_base                = self.__calculate_power_electronic_maintenance_cost() 
 
-        self.doc["INSURANCE [USD/BHR]"]              = insurance
-        self.doc["FUEL [USD/BHR]"]                   = fuel
-        self.doc["ELECTRYCITY [USD/BHR]"]            = electric_energy
-        self.doc["H2 [USD/BHR]"]                     = h2
-        self.doc["COCKPIT CREW [USD/BHR]"]           = cockpit_crew
-        self.doc["CABIN CREW [USD/BHR]"]             = cabin_crew
-        self.doc["LANDING FEES [USD/BHR]"]           = landing_fees
-        self.doc["NAVIGATION CHARGES [USD/BHR]"]     = nav_charges
-        self.doc["GROUND HANDLING [USD/BHR]"]        = ground_charges
-        self.doc["NOISE CHARGES [USD/BHR]"]          = noise_charges
-        self.doc["NOX EMISSION CHARGES [USD/BHR]"]   = nox_emission_charges
-        self.doc["CO EMISSION CHARGES [USD/BHR]"]    = co_emission_charges
-        self.doc["CO2 EMISSION CHARGES [USD/BHR]"]   = co2_emission_charges
-        self.doc["AIRFRANE MAINTENANCE [USD/BHR]"]   = airframe_maintenance
-        self.doc["THERM. ENG. MAINTENANCE [USD/BH]"] = thermal_engine_maintenance
+        cash_operating_cost = {}
 
-        self.doc["ELECTRIC MACHINE LINE MAINT. [USD/BH]"] = electric_machine_maint_line
-        self.doc["ELECTRIC MACHINE BASE MAINT. [USD/BH]"] = electric_machine_maint_base
-        self.doc["BATTERY LINE MAINT. [USD/BH]"]          = battery_maint_line 
-        self.doc["BATTERY BASE MAINT. [USD/BH]"]          = battery_maint_base
-        self.doc["FUEL CELL LINE MAINT. [USD/BH]"]        = fuelcell_maint_line 
-        self.doc["FUEL CELL BASE MAINT. [USD/BH]"]        = fuelcell_maint_base 
-        self.doc["POWER ELECTR. LINE MAINT. [USD/BH]"]    = power_elec_maint_line 
-        self.doc["POWER ELECTR. BASE MAINT. [USD/BH]"]    = power_elec_maint_base 
+        cash_operating_cost["FUEL [USD/BHR]"]                   = fuel
+        cash_operating_cost["ELECTRYCITY [USD/BHR]"]            = electric_energy
+        cash_operating_cost["H2 [USD/BHR]"]                     = h2
+        cash_operating_cost["COCKPIT CREW [USD/BHR]"]           = cockpit_crew
+        cash_operating_cost["CABIN CREW [USD/BHR]"]             = cabin_crew
+        cash_operating_cost["LANDING FEES [USD/BHR]"]           = landing_fees
+        cash_operating_cost["NAVIGATION CHARGES [USD/BHR]"]     = nav_charges
+        cash_operating_cost["GROUND HANDLING [USD/BHR]"]        = ground_charges
+        cash_operating_cost["NOISE CHARGES [USD/BHR]"]          = noise_charges
+        cash_operating_cost["NOX EMISSION CHARGES [USD/BHR]"]   = nox_emission_charges
+        cash_operating_cost["CO EMISSION CHARGES [USD/BHR]"]    = co_emission_charges
+        cash_operating_cost["CO2 EMISSION CHARGES [USD/BHR]"]   = co2_emission_charges
+        cash_operating_cost["AIRFRANE MAINTENANCE [USD/BHR]"]   = airframe_maintenance
+        cash_operating_cost["THERM. ENG. MAINTENANCE [USD/BH]"] = thermal_engine_maintenance
 
+        cash_operating_cost["ELECTRIC MACHINE LINE MAINT. [USD/BH]"] = electric_machine_maint_line
+        cash_operating_cost["ELECTRIC MACHINE BASE MAINT. [USD/BH]"] = electric_machine_maint_base
+        cash_operating_cost["BATTERY LINE MAINT. [USD/BH]"]          = battery_maint_line 
+        cash_operating_cost["BATTERY BASE MAINT. [USD/BH]"]          = battery_maint_base
+        cash_operating_cost["FUEL CELL LINE MAINT. [USD/BH]"]        = fuelcell_maint_line 
+        cash_operating_cost["FUEL CELL BASE MAINT. [USD/BH]"]        = fuelcell_maint_base 
+        cash_operating_cost["POWER ELECTR. LINE MAINT. [USD/BH]"]    = power_elec_maint_line 
+        cash_operating_cost["POWER ELECTR. BASE MAINT. [USD/BH]"]    = power_elec_maint_base       
 
-        cash_operating_cost_list = [insurance, fuel, electric_energy, h2, cockpit_crew, cabin_crew, thermal_engine_maintenance, airframe_maintenance, 
-            landing_fees, nav_charges, ground_charges, noise_charges, nox_emission_charges, co_emission_charges, co2_emission_charges,
-            electric_machine_maint_line, electric_machine_maint_base, battery_maint_line, battery_maint_base, fuelcell_maint_line, fuelcell_maint_base,
-            power_elec_maint_line, power_elec_maint_base]        
-
-        cash_operating_cost = np.sum(cash_operating_cost_list)
         return cash_operating_cost
     
-    def __calculate_financial_cost(self) -> float:
-        depr     = self.__calculate_depreciation()
-        interest = self.__calculate_interest()
+    def __calculate_financial_cost(self) -> dict:
+        depr      = self.__calculate_depreciation()
+        interest  = self.__calculate_interest()
+        insurance = self.__calculate_insurance_cost()
 
-        self.doc["DEPRECIATION [USD/BHR]"] = depr
-        self.doc["INTEREST [USD/BHR]"]     = interest
+        financial_costs = {}
 
-        financial = depr + interest
-        return financial
+        financial_costs["INSURANCE [USD/BHR]"]    = insurance
+        financial_costs["DEPRECIATION [USD/BHR]"] = depr
+        financial_costs["INTEREST [USD/BHR]"]     = interest
+
+        return financial_costs
     
     def __calculate_co2_emission_charges(self) -> float:
-        aec = self.input_dict["aec"]   
         co2_value = self.input_dict["co2_value"]    
         prico2 = self.input_dict["prico2"]
         bt     = self.input_dict["bt"] 
 
-        co2_emission_charges = (1.0-aec)*co2_value*prico2/bt
+        co2_emission_charges = (1.0-self.__params.AEC)*co2_value*prico2/bt
         return co2_emission_charges
     
     def __calculate_battery_maintenance_cost(self) -> tuple[float, float]:
@@ -366,11 +366,10 @@ class DOC():
         return noise_charges
 
     def __calculate_ground_handling_charges(self) -> float:
-        htonn = self.input_dict["htonn"]
         pld   = self.input_dict["pld"]
         bt    = self.input_dict["bt"]
 
-        ground_charges = (htonn*pld)/bt
+        ground_charges = (self.__params.HTONN*pld)/bt
         return ground_charges
     
     def __calculate_navigation_charges(self) -> float:
@@ -378,14 +377,14 @@ class DOC():
         bt     = self.input_dict["bt"]
         sector = self.input_dict["sector"]
 
-        nav_charges = (ENR*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
+        nav_charges = (self.__params.ENR*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
         return nav_charges
     
     def __calculate_landing_fees(self) -> float:
         mtow = self.input_dict["mtow"]
         bt   = self.input_dict["bt"]
 
-        landing_fees = (LANDINGUR*mtow)/bt
+        landing_fees = (self.__params.LANDINGUR*mtow)/bt
         return landing_fees
 
     def __calculate_cabin_crew_cost(self) -> float:

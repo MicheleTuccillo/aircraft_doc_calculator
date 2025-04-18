@@ -7,7 +7,7 @@ from doc_calculator.core.utils.params import Params
 def main() -> None:
 
     # Data for regional turboprop
-    input_dict = {
+    atr_72 = {
         "ADP": 22.0,
         "MTOW": 23.0,
         "PLD": 7.25,
@@ -46,47 +46,14 @@ def main() -> None:
         "CO_VALUE": 0.0,
         "PRICO2": 0.0215,
         "CO2_VALUE": 1875.0, 
-        "ENERPRI": 0.0,
-        "ENER_REQ": 0.0,
-        "H2_PRI": 0.0,
-        "H2_REQ": 0.0,
-        "N_BAT": 0.0,
-        "N_FC": 0.0,
-        "N_REPBAT": 0.0,
-        "BATPRICE": 0.0,
-        "RVBAT": 0.0,
-        "LRBAT": 0.0,
-        "TLBAT": 0.0,
-        "F_BAT": 0.0,
-        "N_REPFC": 0.0,
-        "FCPRICE": 0.0,
-        "RVFC": 0.0,
-        "LRFC": 0.0,
-        "TLFC": 0.0,
-        "F_FC": 0.0,
-        "N_REPPE": 0.0,
-        "PEPRICE": 0.0,
-        "RVPE": 0.0,
-        "LRPE": 0.0,
-        "TLPE": 0.0,
-        "F_PE": 0.0,
-        "N_EM": 0.0,
-        "EMPRICE": 0.0,
-        "LREM": 0.0,
-        "SPEML": 0.0,
-        "SPEMB": 0.0,
-        "TLEML": 0.0,
-        "TLEMB": 0.0,
-        "F_EML": 0.0,
-        "F_EMB": 0.0
     }
 
     # assign Coefficient of cost of handling per tonn
     parameters = Params()
-    parameters.HTONN = 150.0
+    parameters.HTONN = 45.0
 
     # create an instance of the DOC calculator
-    doc_calc_object = DOC(input_dict, params=parameters)
+    doc_calc_object = DOC(atr_72, params=parameters)
 
     # calculate operating costs
     doc_dict = doc_calc_object.calculate_doc()

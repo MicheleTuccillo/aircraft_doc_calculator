@@ -4,14 +4,15 @@ from dataclasses import dataclass
 class Params():
     """
     ### Description
-    The dataclass stores the main unit rates
+    The dataclass stores the main unit rates and constants necessary to conduct
+    a cost analysis
     
     - AEC: Portion of free allocated certificate for CO2 emissions.
     - ENR: Enroute navigation charges unit rate.
     - LANDINGUR: Landing charge unit rate.
     - HTONN: Coefficient of cost of handling per tonn of payload
     """
-    
+
     AEC: float = 0.15
     ENR: float = 68.5
     LANDINGUR: float = 10.0

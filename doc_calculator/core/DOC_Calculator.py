@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 class DOC():
-    def __init__(self, input_dict:dict, **kwargs) -> None:
+    def __init__(self, aircraft:dict, params:Params=Params()) -> None:
         """
         ### Description
         This code enables to evaluate Direct and Total Operating Costs
@@ -12,7 +12,7 @@ class DOC():
         propeller driven ).
 
         ### Input Dict Keys
-        List of variables composing the input dict (case insensitive):
+        List of variables composing the aircraft dict (case insensitive):
         - adp    (USD M)   Aircraft Delivery Price
 
         - mtow  (Tonns)    Max Take-off Weight
@@ -96,17 +96,13 @@ class DOC():
         - h2_req (kg)              H2 requirements
         
         """
-        self.input_dict      = _assign_input(input=input_dict)
-
-        if kwargs:
-            self.__params = kwargs["params"]
-        else:
-            self.__params = Params()
+        self.aircraft = _assign_input(input=aircraft)
+        self.__params   = params
 
         return None
     
     def calculate_doc(self) -> dict:
-        bt = self.input_dict["bt"]
+        bt = self.aircraft["bt"]
 
         doc = {}
 
@@ -126,8 +122,8 @@ class DOC():
         return doc
         
     def calculate_ioc(self) -> dict:
-        ioc_fact = self.input_dict["ioc_fact"]
-        bt     = self.input_dict["bt"]
+        ioc_fact = self.aircraft["ioc_fact"]
+        bt     = self.aircraft["bt"]
 
         ioc = {}
 
@@ -206,87 +202,87 @@ class DOC():
         return financial_costs
     
     def __calculate_co2_emission_charges(self) -> float:
-        co2_value = self.input_dict["co2_value"]    
-        prico2 = self.input_dict["prico2"]
-        bt     = self.input_dict["bt"] 
+        co2_value = self.aircraft["co2_value"]    
+        prico2 = self.aircraft["prico2"]
+        bt     = self.aircraft["bt"] 
 
         co2_emission_charges = (1.0-self.__params.AEC)*co2_value*prico2/bt
         return co2_emission_charges
     
     def __calculate_battery_maintenance_cost(self) -> tuple[float, float]:
-        n_bat     = self.input_dict["n_bat"]
-        n_repbat  = self.input_dict["n_repbat"]
-        batprice = self.input_dict["batprice"]
-        rvbat    = self.input_dict["rvbat"]
-        lrbat    = self.input_dict["lrbat"]
-        tlbat    = self.input_dict["tlbat"]
-        f_bat     = self.input_dict["f_bat"]
-        lifespan = self.input_dict["lifespan"]
-        util     = self.input_dict["util"]
+        n_bat     = self.aircraft["n_bat"]
+        n_repbat  = self.aircraft["n_repbat"]
+        batprice = self.aircraft["batprice"]
+        rvbat    = self.aircraft["rvbat"]
+        lrbat    = self.aircraft["lrbat"]
+        tlbat    = self.aircraft["tlbat"]
+        f_bat     = self.aircraft["f_bat"]
+        lifespan = self.aircraft["lifespan"]
+        util     = self.aircraft["util"]
 
         battery_maint_line = n_bat*lrbat*tlbat*f_bat
         battery_maint_base = n_bat*(n_repbat*(batprice-rvbat))/(lifespan*util) # replace
         return battery_maint_line, battery_maint_base
     
     def __calculate_fuel_cell_maintenance_cost(self) -> tuple[float, float]:
-        n_fc      = self.input_dict["n_fc"]
-        n_repfc   = self.input_dict["n_repfc"]
-        fcprice  = self.input_dict["fcprice"]
-        rvfc     = self.input_dict["rvfc"]
-        lrfc     = self.input_dict["lrfc"]
-        tlfc     = self.input_dict["tlfc"]
-        f_fc      = self.input_dict["f_fc"]
-        lifespan = self.input_dict["lifespan"]
-        util     = self.input_dict["util"]
+        n_fc      = self.aircraft["n_fc"]
+        n_repfc   = self.aircraft["n_repfc"]
+        fcprice  = self.aircraft["fcprice"]
+        rvfc     = self.aircraft["rvfc"]
+        lrfc     = self.aircraft["lrfc"]
+        tlfc     = self.aircraft["tlfc"]
+        f_fc      = self.aircraft["f_fc"]
+        lifespan = self.aircraft["lifespan"]
+        util     = self.aircraft["util"]
 
         fuel_cell_maint_line = n_fc*lrfc*tlfc*f_fc
         fuel_cell_maint_base = n_fc*(n_repfc*(fcprice-rvfc))/(lifespan*util) # replace
         return fuel_cell_maint_line, fuel_cell_maint_base
     
     def __calculate_power_electronic_maintenance_cost(self) -> tuple[float, float]:
-        n_reppe   = self.input_dict["n_reppe"]
-        peprice  = self.input_dict["peprice"]
-        rvpe     = self.input_dict["rvpe"]
-        lrpe     = self.input_dict["lrpe"]
-        tlpe     = self.input_dict["tlpe"]
-        f_pe      = self.input_dict["f_pe"]
-        lifespan = self.input_dict["lifespan"]
-        util     = self.input_dict["util"]
+        n_reppe   = self.aircraft["n_reppe"]
+        peprice  = self.aircraft["peprice"]
+        rvpe     = self.aircraft["rvpe"]
+        lrpe     = self.aircraft["lrpe"]
+        tlpe     = self.aircraft["tlpe"]
+        f_pe      = self.aircraft["f_pe"]
+        lifespan = self.aircraft["lifespan"]
+        util     = self.aircraft["util"]
 
         power_electronic_maint_line = lrpe*tlpe*f_pe
         power_electronic_maint_base = (n_reppe*(peprice-rvpe))/(lifespan*util) # replace
         return power_electronic_maint_line, power_electronic_maint_base
 
     def __calculate_electric_machine_maintenance_cost(self) -> tuple[float, float]:
-        n_em      = self.input_dict["n_em"]     
-        speml    = self.input_dict["speml"]       # spare parts cost line maintenance
-        spemb    = self.input_dict["spemb"]       # spare parts cost base maintenance
-        lrem     = self.input_dict["lrem"]
-        tleml    = self.input_dict["tleml"]       # maintenance man hour line maint.
-        tlemb    = self.input_dict["tlemb"]       # maintenance man hour base maint.
-        f_eml     = self.input_dict["f_eml"]        # maintenance frequency line maint
-        f_emb     = self.input_dict["f_emb"]        # maintenance frequency base maint
-        lifespan = self.input_dict["lifespan"]
-        util     = self.input_dict["util"]
+        n_em      = self.aircraft["n_em"]     
+        speml    = self.aircraft["speml"]       # spare parts cost line maintenance
+        spemb    = self.aircraft["spemb"]       # spare parts cost base maintenance
+        lrem     = self.aircraft["lrem"]
+        tleml    = self.aircraft["tleml"]       # maintenance man hour line maint.
+        tlemb    = self.aircraft["tlemb"]       # maintenance man hour base maint.
+        f_eml     = self.aircraft["f_eml"]        # maintenance frequency line maint
+        f_emb     = self.aircraft["f_emb"]        # maintenance frequency base maint
+        lifespan = self.aircraft["lifespan"]
+        util     = self.aircraft["util"]
         
         electric_machine_maint_line = n_em*(speml + lrem*tleml)*lifespan*f_eml/util
         electric_machine_maint_base = n_em*(spemb + lrem*tlemb)*f_emb*0.80
         return electric_machine_maint_line, electric_machine_maint_base
     
     def __calculate_airframe_maintenance_cost(self) -> float:
-        n_bat     = self.input_dict["n_bat"]         
-        n_em      = self.input_dict["n_em"]
-        n_fc      = self.input_dict["n_fc"]
-        batprice  = self.input_dict["batprice"]
-        fcprice   = self.input_dict["fcprice"]
-        emprice   = self.input_dict["emprice"]
-        bt        = self.input_dict["bt"]
-        adp       = self.input_dict["adp"]
-        en        = self.input_dict["en"]
-        enpri     = self.input_dict["enpri"]
-        mew       = self.input_dict["mew"]
-        bengw     = self.input_dict["bengw"]
-        labor_rate = self.input_dict["labor_rate"]
+        n_bat     = self.aircraft["n_bat"]         
+        n_em      = self.aircraft["n_em"]
+        n_fc      = self.aircraft["n_fc"]
+        batprice  = self.aircraft["batprice"]
+        fcprice   = self.aircraft["fcprice"]
+        emprice   = self.aircraft["emprice"]
+        bt        = self.aircraft["bt"]
+        adp       = self.aircraft["adp"]
+        en        = self.aircraft["en"]
+        enpri     = self.aircraft["enpri"]
+        mew       = self.aircraft["mew"]
+        bengw     = self.aircraft["bengw"]
+        labor_rate = self.aircraft["labor_rate"]
 
         M   = 1.0 # Mach Number (Assumed 1 for subsonic cruise)
         FT  = bt - 0.25
@@ -304,14 +300,14 @@ class DOC():
         return airframe_maintenance_cost
 
     def __calculate_thermal_engine_maintenance_cost(self) -> float:
-        ieng = self.input_dict["ieng"]
-        en   = self.input_dict["en"]
+        ieng = self.aircraft["ieng"]
+        en   = self.aircraft["en"]
         
         if ieng == 1:
-            bt    = self.input_dict["bt"]
-            labor_rate    = self.input_dict["labor_rate"]
-            shp   = self.input_dict["shp"]
-            enpri = self.input_dict["enpri"]
+            bt    = self.aircraft["bt"]
+            labor_rate    = self.aircraft["labor_rate"]
+            shp   = self.aircraft["shp"]
+            enpri = self.aircraft["enpri"]
 
             FT       = bt - 0.25
             K_ICE_FC = (0.3 + 0.03*shp/1000.0)*en
@@ -325,7 +321,7 @@ class DOC():
             thermal_engine_maintenance_cost = thermal_engine_material_cost + thermal_engine_labor_cost
 
         elif ieng == 2:
-            eoc = self.input_dict["eoc"]
+            eoc = self.aircraft["eoc"]
 
             thermal_engine_maintenance_cost = eoc*en
             
@@ -335,29 +331,29 @@ class DOC():
         return thermal_engine_maintenance_cost
     
     def __calculate_nox_emission_charges(self) -> float:
-        cnox        = self.input_dict["cnox"]
-        nox_value = self.input_dict["nox_value"]
-        bt           = self.input_dict["bt"]
+        cnox        = self.aircraft["cnox"]
+        nox_value = self.aircraft["nox_value"]
+        bt           = self.aircraft["bt"]
 
         nox_emission_charges = (cnox*nox_value)/bt
         return nox_emission_charges
 
     def __calculate_co_emission_charges(self) -> float:
-        cco         = self.input_dict["cco"]
-        co_value  = self.input_dict["co_value"]
-        bt           = self.input_dict["bt"]
+        cco         = self.aircraft["cco"]
+        co_value  = self.aircraft["co_value"]
+        bt           = self.aircraft["bt"]
 
         co_emission_charges  = (cco*co_value)/bt
         return co_emission_charges
     
     def __calculate_noise_charges(self) -> float:
-        l_app   = self.input_dict["l_app"]
-        ta      = self.input_dict["ta"]
-        l_flyov = self.input_dict["l_flyov"]
-        l_lat   = self.input_dict["l_lat"]
-        td      = self.input_dict["td"]
-        bt      = self.input_dict["bt"]
-        cnoise  = self.input_dict["cnoise"]
+        l_app   = self.aircraft["l_app"]
+        ta      = self.aircraft["ta"]
+        l_flyov = self.aircraft["l_flyov"]
+        l_lat   = self.aircraft["l_lat"]
+        td      = self.aircraft["td"]
+        bt      = self.aircraft["bt"]
+        cnoise  = self.aircraft["cnoise"]
 
         DELTAA = (l_app-ta)/10.0
         DELTAD = (((l_flyov+l_lat)/2.0)-td)/10.0
@@ -366,85 +362,85 @@ class DOC():
         return noise_charges
 
     def __calculate_ground_handling_charges(self) -> float:
-        pld   = self.input_dict["pld"]
-        bt    = self.input_dict["bt"]
+        pld   = self.aircraft["pld"]
+        bt    = self.aircraft["bt"]
 
         ground_charges = (self.__params.HTONN*pld)/bt
         return ground_charges
     
     def __calculate_navigation_charges(self) -> float:
-        mtow   = self.input_dict["mtow"]
-        bt     = self.input_dict["bt"]
-        sector = self.input_dict["sector"]
+        mtow   = self.aircraft["mtow"]
+        bt     = self.aircraft["bt"]
+        sector = self.aircraft["sector"]
 
         nav_charges = (self.__params.ENR*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
         return nav_charges
     
     def __calculate_landing_fees(self) -> float:
-        mtow = self.input_dict["mtow"]
-        bt   = self.input_dict["bt"]
+        mtow = self.aircraft["mtow"]
+        bt   = self.aircraft["bt"]
 
         landing_fees = (self.__params.LANDINGUR*mtow)/bt
         return landing_fees
 
     def __calculate_cabin_crew_cost(self) -> float:
-        crcabhr = self.input_dict["crcabhr"]
-        crewc   = self.input_dict["crewc"]
+        crcabhr = self.aircraft["crcabhr"]
+        crewc   = self.aircraft["crewc"]
 
         cabin_crew = crcabhr*crewc
         return cabin_crew
     
     def __calculate_cockpit_crew_cost(self) -> float:
-        crtechr  = self.input_dict["crtechr"]
-        crewtech = self.input_dict["crewtech"]
+        crtechr  = self.aircraft["crtechr"]
+        crewtech = self.aircraft["crewtech"]
 
         cockpit_crew = crtechr*crewtech
         return cockpit_crew
     
     def __calculate_h2_price(self) -> None:
-        h2_pri         = self.input_dict["h2_pri"]
-        h2_req = self.input_dict["h2_req"]
-        bt            = self.input_dict["bt"]
+        h2_pri         = self.aircraft["h2_pri"]
+        h2_req = self.aircraft["h2_req"]
+        bt            = self.aircraft["bt"]
 
         h2_price = h2_pri*h2_req/bt
         return h2_price
     
     def __calculate_electric_energy_price(self) -> None:
-        enerpri         = self.input_dict["enerpri"]
-        ener_req = self.input_dict["ener_req"]
-        bt              = self.input_dict["bt"]
+        enerpri         = self.aircraft["enerpri"]
+        ener_req = self.aircraft["ener_req"]
+        bt              = self.aircraft["bt"]
 
         electric_energy_price = ener_req*enerpri/bt
         return electric_energy_price
     
     def __calculate_fuel_cost(self) -> float:
-        fuelpri = self.input_dict["fuelpri"]
-        bf      = self.input_dict["bf"]
-        bt      = self.input_dict["bt"]
+        fuelpri = self.aircraft["fuelpri"]
+        bf      = self.aircraft["bf"]
+        bt      = self.aircraft["bt"]
 
         fuel = (0.328*fuelpri*bf)/bt
         return fuel
     
     def __calculate_insurance_cost(self) -> float:
-        rinsh = self.input_dict["rinsh"]
-        adp   = self.input_dict["adp"]*1.0e6
-        util  = self.input_dict["util"]
+        rinsh = self.aircraft["rinsh"]
+        adp   = self.aircraft["adp"]*1.0e6
+        util  = self.aircraft["util"]
 
         insurance = (rinsh*adp)/util
         return insurance
     
     def __calculate_investment(self) -> float:
-        adp     = self.input_dict["adp"]*1.0e6
-        afspare = self.input_dict["afspare"]
-        enpri   = self.input_dict["enpri"]
-        en      = self.input_dict["en"]
-        enspare = self.input_dict["enspare"]
+        adp     = self.aircraft["adp"]*1.0e6
+        afspare = self.aircraft["afspare"]
+        enpri   = self.aircraft["enpri"]
+        en      = self.aircraft["en"]
+        enspare = self.aircraft["enspare"]
 
         invest = adp+(afspare*(adp-enpri*en))+(enspare*enpri*en)
         return invest
     
     def __calculate_interest(self) -> float:
-        util = self.input_dict["util"]
+        util = self.aircraft["util"]
 
         INVEST = self.__calculate_investment()
         
@@ -452,9 +448,9 @@ class DOC():
         return interest
         
     def __calculate_depreciation(self) -> float:
-        rval   = self.input_dict["rval"]
-        dyrs   = self.input_dict["dyrs"]
-        util   = self.input_dict["util"]
+        rval   = self.aircraft["rval"]
+        dyrs   = self.aircraft["dyrs"]
+        util   = self.aircraft["util"]
 
         INVEST = self.__calculate_investment()
 

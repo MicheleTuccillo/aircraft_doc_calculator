@@ -16,7 +16,7 @@
     - Noise Emissions
     - CO Emissions
     - NOx Emissions
-    - CO2 Emissions
+    - CO2 Emissions (EU ETS)
   - Maintenance costs for:
     - Airframe
     - Turboprop Engines
@@ -37,7 +37,7 @@ pip install doc_calculator
 ```
 ## 📚 References / Citation
 
-If you use `doc_calculator` for academic or research purposes, please cite it as:
+If you use `doc_calculator` for academic or research purposes, please cite:
 
 ```latex
 @software{doc_calculator,

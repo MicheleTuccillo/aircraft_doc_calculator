@@ -28,6 +28,8 @@
     - Pilots costs
     - Cabin Crew costs  
 
+- The package includes a ready-to-use **GEMSEO discipline** to allow integration with multidisciplinary design analysis (MDA) and optimization (MDO) workflows based on the GEMSEO framework.
+
 ## 🛠️ Installation
 
 Install the package using `pip`:

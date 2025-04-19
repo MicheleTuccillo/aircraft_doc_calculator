@@ -93,7 +93,7 @@ class DOC(object):
         
         """
         self.aircraft = _assign_input(input=aircraft)
-        self.__params   = params
+        self.__params = params
 
         return None
     

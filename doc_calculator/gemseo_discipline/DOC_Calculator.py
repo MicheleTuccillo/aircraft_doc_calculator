@@ -1,11 +1,11 @@
 from gemseo.core.discipline.discipline import Discipline
-from doc_calculator.core.DOC_Calculator import DOC
+from doc_calculator.core.DOC_Calculator import DirectOperatingCost
 from doc_calculator.core.utils.params import Params
 from doc_calculator.gemseo_discipline.utils.utils_functions import create_default_gemseo_grammar
 import numpy as np
 
 
-class DOC_Calculator(Discipline):
+class GemseoDirectOperatingCost(Discipline):
 
     def __init__(self, name="DOC_Calculator", **kwargs):
         super().__init__(name)
@@ -34,7 +34,7 @@ class DOC_Calculator(Discipline):
             aircraft[key] = value[0]
         
         # instance of the DOC class
-        doc_calc_object = DOC(aircraft, params=self._params)
+        doc_calc_object = DirectOperatingCost(aircraft, params=self._params)
 
         # DOC [USD/flight]
         doc_dict = doc_calc_object.calculate_doc()

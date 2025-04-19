@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-from doc_calculator.core.DOC_Calculator import DOC
+from doc_calculator.core.DOC_Calculator import DirectOperatingCost
 from doc_calculator.core.utils.params import Params 
 
 def main() -> None:
@@ -50,7 +50,7 @@ def main() -> None:
     parameters.HTONN = 45.0
 
     # create an instance of the DOC calculator
-    doc_calc_object = DOC(atr_72, params=parameters)
+    doc_calc_object = DirectOperatingCost(atr_72, params=parameters)
 
     # calculate operating costs
     doc_dict = doc_calc_object.calculate_doc()

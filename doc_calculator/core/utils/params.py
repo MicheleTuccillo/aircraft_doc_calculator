@@ -9,6 +9,7 @@ class Params():
     
     - AEC: Portion of free allocated certificate for CO2 emissions.
     - ENR: Enroute navigation charges unit rate.
+    - INTEREST_RATE: annual interest rate
     - LANDINGUR: Landing charge unit rate.
     - HTONN: Coefficient of cost of handling per tonn of payload
     - CNOISE: Unit noise rate (Noise tariff that depends on the airport) (USD)
@@ -18,6 +19,7 @@ class Params():
 
     AEC: float = 0.15
     ENR: float = 68.5
+    INTEREST_RATE = 0.053
     LANDINGUR: float = 10.0
     HTONN: float = 45.0
     CNOISE: float = 4.15

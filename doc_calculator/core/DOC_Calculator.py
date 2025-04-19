@@ -1,8 +1,14 @@
 from doc_calculator.core.utils.util_functions import _assign_input
 from doc_calculator.core.utils.params import Params 
+from typing import Dict, Tuple
 import math
 
-class DOC(object):
+class DirectOperatingCost(object):
+
+    # Constants
+    MACH_NUMBER_FACTOR = 1.0  # 1.0 = Assumed subsonic cruise
+    FLIGHT_TIME_OFFSET = 0.25
+
     def __init__(self, aircraft:dict, params:Params=Params()) -> None:
         """
         ### Description
@@ -93,119 +99,99 @@ class DOC(object):
         
         """
         self.aircraft = _assign_input(input=aircraft)
-        self.__params = params
+        self._params = params
 
         return None
     
-    def calculate_doc(self) -> dict:
+    def calculate_doc(self) -> Dict[str, float]:
+
         bt = self.aircraft["bt"]
+        financial = self._calculate_financial_cost()
+        operating = self._calculate_cash_operating_cost()
 
-        doc = {}
+        doc_total = sum(financial.values()) + sum(operating.values())
 
-        # Financial Costs [USD/BHR]
-        financial_costs = self.__calculate_financial_cost()
-
-        # Cash Operating Costs [USD/BHR]
-        cash_operating_costs = self.__calculate_cash_operating_cost()
-
-        # DOC [USD/BHR]
-        doc = {**financial_costs, **cash_operating_costs}
-        doc["DOC [USD/BHR]"] = sum(financial_costs.values()) + sum(cash_operating_costs.values())
-
-        # DOC [USD/flight]
-        doc["DOC [USD/flight]"] = bt*doc["DOC [USD/BHR]"]
-
-        return doc
+        return {
+            **financial,
+            **operating,
+            "DOC [USD/BHR]": doc_total,
+            "DOC [USD/flight]": bt * doc_total,
+        }
         
-    def calculate_ioc(self) -> dict:
-        ioc_fact = self.aircraft["ioc_fact"]
-        bt     = self.aircraft["bt"]
-
-        ioc = {}
-
-        # Cash Operating Costs [USD/BHR]
-        cash_operating_cost = self.__calculate_cash_operating_cost()
-
-        # Indirect Operating Costs [USD/BHR]
-        ioc["IOC [USD/BHR]"] = ioc_fact*sum(cash_operating_cost.values())
-
-        # Indirect Operating Costs [USD/flight]
-        ioc["IOC [USD/flight]"] = bt*ioc["IOC [USD/BHR]"]
-
-        return ioc
+    def calculate_ioc(self) -> Dict[str, float]:
     
-    def __calculate_cash_operating_cost(self) -> dict:
+        ioc_factor = self.aircraft["ioc_fact"]
+        bt = self.aircraft["bt"]
+        operating_cost = self._calculate_cash_operating_cost()
+        ioc_bhr = ioc_factor * sum(operating_cost.values())
 
-        fuel                            = self.__calculate_fuel_cost()
-        electric_energy                 = self.__calculate_electric_energy_price()
-        h2                              = self.__calculate_h2_price()
-        cockpit_crew                    = self.__calculate_cockpit_crew_cost()
-        cabin_crew                      = self.__calculate_cabin_crew_cost()
-        landing_fees                    = self.__calculate_landing_fees()
-        nav_charges                     = self.__calculate_navigation_charges()
-        ground_charges                  = self.__calculate_ground_handling_charges()
-        noise_charges                   = self.__calculate_noise_charges()
-        airframe_maintenance            = self.__calculate_airframe_maintenance_cost()
-        thermal_engine_maintenance      = self.__calculate_thermal_engine_maintenance_cost()
-        nox_emission_charges            = self.__calculate_nox_emission_charges()   
-        co_emission_charges             = self.__calculate_co_emission_charges()   
-        co2_emission_charges            = self.__calculate_co2_emission_charges()
-
-        electric_machine_maint_line, electric_machine_maint_base    = self.__calculate_electric_machine_maintenance_cost()
-        battery_maint_line, battery_maint_base                      = self.__calculate_battery_maintenance_cost()
-        fuelcell_maint_line, fuelcell_maint_base                    = self.__calculate_fuel_cell_maintenance_cost()
-        power_elec_maint_line, power_elec_maint_base                = self.__calculate_power_electronic_maintenance_cost() 
-
-        cash_operating_cost = {}
-
-        cash_operating_cost["FUEL [USD/BHR]"]                   = fuel
-        cash_operating_cost["ELECTRYCITY [USD/BHR]"]            = electric_energy
-        cash_operating_cost["H2 [USD/BHR]"]                     = h2
-        cash_operating_cost["COCKPIT CREW [USD/BHR]"]           = cockpit_crew
-        cash_operating_cost["CABIN CREW [USD/BHR]"]             = cabin_crew
-        cash_operating_cost["LANDING FEES [USD/BHR]"]           = landing_fees
-        cash_operating_cost["NAVIGATION CHARGES [USD/BHR]"]     = nav_charges
-        cash_operating_cost["GROUND HANDLING [USD/BHR]"]        = ground_charges
-        cash_operating_cost["NOISE CHARGES [USD/BHR]"]          = noise_charges
-        cash_operating_cost["NOX EMISSION CHARGES [USD/BHR]"]   = nox_emission_charges
-        cash_operating_cost["CO EMISSION CHARGES [USD/BHR]"]    = co_emission_charges
-        cash_operating_cost["CO2 EMISSION CHARGES [USD/BHR]"]   = co2_emission_charges
-        cash_operating_cost["AIRFRANE MAINTENANCE [USD/BHR]"]   = airframe_maintenance
-        cash_operating_cost["THERM. ENG. MAINTENANCE [USD/BH]"] = thermal_engine_maintenance
-
-        cash_operating_cost["ELECTRIC MACHINE LINE MAINT. [USD/BH]"] = electric_machine_maint_line
-        cash_operating_cost["ELECTRIC MACHINE BASE MAINT. [USD/BH]"] = electric_machine_maint_base
-        cash_operating_cost["BATTERY LINE MAINT. [USD/BH]"]          = battery_maint_line 
-        cash_operating_cost["BATTERY BASE MAINT. [USD/BH]"]          = battery_maint_base
-        cash_operating_cost["FUEL CELL LINE MAINT. [USD/BH]"]        = fuelcell_maint_line 
-        cash_operating_cost["FUEL CELL BASE MAINT. [USD/BH]"]        = fuelcell_maint_base 
-        cash_operating_cost["POWER ELECTR. LINE MAINT. [USD/BH]"]    = power_elec_maint_line 
-        cash_operating_cost["POWER ELECTR. BASE MAINT. [USD/BH]"]    = power_elec_maint_base       
-
-        return cash_operating_cost
+        return {
+            "IOC [USD/BHR]": ioc_bhr,
+            "IOC [USD/flight]": bt * ioc_bhr,
+        }
     
-    def __calculate_financial_cost(self) -> dict:
-        depr      = self.__calculate_depreciation()
-        interest  = self.__calculate_interest()
-        insurance = self.__calculate_insurance_cost()
+    def _calculate_cash_operating_cost(self) -> Dict[str, float]:
 
-        financial_costs = {}
+        fuel                            = self._calculate_fuel_cost()
+        electric_energy                 = self._calculate_electric_energy_price()
+        h2                              = self._calculate_h2_price()
+        cockpit_crew                    = self._calculate_cockpit_crew_cost()
+        cabin_crew                      = self._calculate_cabin_crew_cost()
+        landing_fees                    = self._calculate_landing_fees()
+        nav_charges                     = self._calculate_navigation_charges()
+        ground_charges                  = self._calculate_ground_handling_charges()
+        noise_charges                   = self._calculate_noise_charges()
+        airframe_maintenance            = self._calculate_airframe_maintenance_cost()
+        thermal_engine_maintenance      = self._calculate_thermal_engine_maintenance_cost()
+        nox_emission_charges            = self._calculate_nox_emission_charges()   
+        co_emission_charges             = self._calculate_co_emission_charges()   
+        co2_emission_charges            = self._calculate_co2_emission_charges()
 
-        financial_costs["INSURANCE [USD/BHR]"]    = insurance
-        financial_costs["DEPRECIATION [USD/BHR]"] = depr
-        financial_costs["INTEREST [USD/BHR]"]     = interest
+        electric_machine_maint_line, electric_machine_maint_base    = self._calculate_electric_machine_maintenance_cost()
+        battery_maint_line, battery_maint_base                      = self._calculate_battery_maintenance_cost()
+        fuelcell_maint_line, fuelcell_maint_base                    = self._calculate_fuel_cell_maintenance_cost()
+        power_elec_maint_line, power_elec_maint_base                = self._calculate_power_electronic_maintenance_cost() 
 
-        return financial_costs
+        return {
+            "FUEL [USD/BHR]": fuel,
+            "ELECTRYCITY [USD/BHR]": electric_energy,
+            "H2 [USD/BHR]": h2,
+            "COCKPIT CREW [USD/BHR]": cockpit_crew,
+            "CABIN CREW [USD/BHR]": cabin_crew,
+            "LANDING FEES [USD/BHR]": landing_fees,
+            "NAVIGATION CHARGES [USD/BHR]": nav_charges,
+            "GROUND HANDLING [USD/BHR]": ground_charges,
+            "NOISE CHARGES [USD/BHR]": noise_charges,
+            "NOX EMISSION CHARGES [USD/BHR]": nox_emission_charges,
+            "CO EMISSION CHARGES [USD/BHR]": co_emission_charges,
+            "CO2 EMISSION CHARGES [USD/BHR]": co2_emission_charges,
+            "AIRFRANE MAINTENANCE [USD/BHR]": airframe_maintenance,
+            "THERM. ENG. MAINTENANCE [USD/BH]": thermal_engine_maintenance,
+            "ELECTRIC MACHINE LINE MAINT. [USD/BH]": electric_machine_maint_line,
+            "ELECTRIC MACHINE BASE MAINT. [USD/BH]": electric_machine_maint_base,
+            "BATTERY LINE MAINT. [USD/BH]": battery_maint_line,
+            "BATTERY BASE MAINT. [USD/BH]": battery_maint_base,
+            "FUEL CELL LINE MAINT. [USD/BH]": fuelcell_maint_line,
+            "FUEL CELL BASE MAINT. [USD/BH]": fuelcell_maint_base,
+            "POWER ELECTR. LINE MAINT. [USD/BH]": power_elec_maint_line, 
+            "POWER ELECTR. BASE MAINT. [USD/BH]": power_elec_maint_base     
+            }
     
-    def __calculate_co2_emission_charges(self) -> float:
+    def _calculate_financial_cost(self) -> Dict[str, float]:
+        return {
+            "INSURANCE [USD/BHR]": self._calculate_insurance_cost(),
+            "DEPRECIATION [USD/BHR]": self._calculate_depreciation(),
+            "INTEREST [USD/BHR]": self._calculate_interest()
+            }
+    
+    def _calculate_co2_emission_charges(self) -> float:
         co2_value = self.aircraft["co2_value"]    
         prico2 = self.aircraft["prico2"]
         bt     = self.aircraft["bt"] 
 
-        co2_emission_charges = (1.0-self.__params.AEC)*co2_value*prico2/bt
-        return co2_emission_charges
+        return (1.0-self._params.AEC)*co2_value*prico2/bt
     
-    def __calculate_battery_maintenance_cost(self) -> tuple[float, float]:
+    def _calculate_battery_maintenance_cost(self) -> Tuple[float, float]:
         n_bat     = self.aircraft["n_bat"]
         n_repbat  = self.aircraft["n_repbat"]
         batprice = self.aircraft["batprice"]
@@ -220,7 +206,7 @@ class DOC(object):
         battery_maint_base = n_bat*(n_repbat*(batprice-rvbat))/(lifespan*util) # replace
         return battery_maint_line, battery_maint_base
     
-    def __calculate_fuel_cell_maintenance_cost(self) -> tuple[float, float]:
+    def _calculate_fuel_cell_maintenance_cost(self) -> Tuple[float, float]:
         n_fc      = self.aircraft["n_fc"]
         n_repfc   = self.aircraft["n_repfc"]
         fcprice  = self.aircraft["fcprice"]
@@ -235,7 +221,7 @@ class DOC(object):
         fuel_cell_maint_base = n_fc*(n_repfc*(fcprice-rvfc))/(lifespan*util) # replace
         return fuel_cell_maint_line, fuel_cell_maint_base
     
-    def __calculate_power_electronic_maintenance_cost(self) -> tuple[float, float]:
+    def _calculate_power_electronic_maintenance_cost(self) -> Tuple[float, float]:
         n_reppe   = self.aircraft["n_reppe"]
         peprice  = self.aircraft["peprice"]
         rvpe     = self.aircraft["rvpe"]
@@ -249,7 +235,7 @@ class DOC(object):
         power_electronic_maint_base = (n_reppe*(peprice-rvpe))/(lifespan*util) # replace
         return power_electronic_maint_line, power_electronic_maint_base
 
-    def __calculate_electric_machine_maintenance_cost(self) -> tuple[float, float]:
+    def _calculate_electric_machine_maintenance_cost(self) -> Tuple[float, float]:
         n_em      = self.aircraft["n_em"]     
         speml    = self.aircraft["speml"]       # spare parts cost line maintenance
         spemb    = self.aircraft["spemb"]       # spare parts cost base maintenance
@@ -265,7 +251,7 @@ class DOC(object):
         electric_machine_maint_base = n_em*(spemb + lrem*tlemb)*f_emb*0.80
         return electric_machine_maint_line, electric_machine_maint_base
     
-    def __calculate_airframe_maintenance_cost(self) -> float:
+    def _calculate_airframe_maintenance_cost(self) -> float:
         n_bat     = self.aircraft["n_bat"]         
         n_em      = self.aircraft["n_em"]
         n_fc      = self.aircraft["n_fc"]
@@ -280,8 +266,7 @@ class DOC(object):
         bengw     = self.aircraft["bengw"]
         labor_rate = self.aircraft["labor_rate"]
 
-        M   = 1.0 # Mach Number (Assumed 1 for subsonic cruise)
-        FT  = bt - 0.25
+        FT  = bt - self.FLIGHT_TIME_OFFSET
         AFW = mew-(bengw*en)
 
         C_A_FH = 3.08*(adp - en*enpri - n_bat*batprice/1.0e6 - n_em*emprice/1.0e6 - n_fc*fcprice/1.0e6)
@@ -289,13 +274,12 @@ class DOC(object):
         K_A_FC = 0.05*AFW*2.2 + 6 - 630.0/(AFW*2.2 + 120.0)
         K_A_FH = 0.59*K_A_FC
         
-        airframe_labor_cost    = (K_A_FH*FT + K_A_FC)*labor_rate*math.sqrt(M)/bt
+        airframe_labor_cost    = (K_A_FH*FT + K_A_FC)*labor_rate*math.sqrt(self.MACH_NUMBER_FACTOR)/bt
         airframe_material_cost = (C_A_FH*FT + C_A_FC)/bt
 
-        airframe_maintenance_cost = airframe_material_cost + airframe_labor_cost
-        return airframe_maintenance_cost
+        return airframe_material_cost + airframe_labor_cost
 
-    def __calculate_thermal_engine_maintenance_cost(self) -> float:
+    def _calculate_thermal_engine_maintenance_cost(self) -> float:
         ieng = self.aircraft["ieng"]
         en   = self.aircraft["en"]
         
@@ -305,7 +289,7 @@ class DOC(object):
             shp   = self.aircraft["shp"]
             enpri = self.aircraft["enpri"]
 
-            FT       = bt - 0.25
+            FT       = bt - self.FLIGHT_TIME_OFFSET
             K_ICE_FC = (0.3 + 0.03*shp/1000.0)*en
             K_ICE_FH = (0.65 + 0.03*shp/1000.0)*en
             C_ICE_FC = 2.0*en*enpri*10.0
@@ -326,26 +310,24 @@ class DOC(object):
         
         return thermal_engine_maintenance_cost
     
-    def __calculate_nox_emission_charges(self) -> float:
+    def _calculate_nox_emission_charges(self) -> float:
         cnox        = self.aircraft["cnox"]
         nox_value = self.aircraft["nox_value"]
         bt           = self.aircraft["bt"]
 
-        nox_emission_charges = (cnox*nox_value)/bt
-        return nox_emission_charges
+        return (cnox*nox_value)/bt
 
-    def __calculate_co_emission_charges(self) -> float:
+    def _calculate_co_emission_charges(self) -> float:
         cco         = self.aircraft["cco"]
         co_value  = self.aircraft["co_value"]
         bt           = self.aircraft["bt"]
 
-        co_emission_charges  = (cco*co_value)/bt
-        return co_emission_charges
+        return (cco*co_value)/bt
     
-    def __calculate_noise_charges(self) -> float:
-        ta      = self.__params.TA
-        td      = self.__params.TD
-        cnoise  = self.__params.CNOISE
+    def _calculate_noise_charges(self) -> float:
+        ta      = self._params.TA
+        td      = self._params.TD
+        cnoise  = self._params.CNOISE
 
         l_app   = self.aircraft["l_app"]
         l_flyov = self.aircraft["l_flyov"]
@@ -355,101 +337,88 @@ class DOC(object):
         DELTAA = (l_app-ta)/10.0
         DELTAD = (((l_flyov+l_lat)/2.0)-td)/10.0
         
-        noise_charges = (cnoise*(10.0**(DELTAA)+10.0**(DELTAD)))/bt
-        return noise_charges
+        return (cnoise*(10.0**(DELTAA)+10.0**(DELTAD)))/bt
 
-    def __calculate_ground_handling_charges(self) -> float:
+    def _calculate_ground_handling_charges(self) -> float:
         pld   = self.aircraft["pld"]
         bt    = self.aircraft["bt"]
 
-        ground_charges = (self.__params.HTONN*pld)/bt
-        return ground_charges
+        return (self._params.HTONN*pld)/bt
     
-    def __calculate_navigation_charges(self) -> float:
+    def _calculate_navigation_charges(self) -> float:
         mtow   = self.aircraft["mtow"]
         bt     = self.aircraft["bt"]
         sector = self.aircraft["sector"]
 
-        nav_charges = (self.__params.ENR*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
-        return nav_charges
+        return (self._params.ENR*sector*1.853/100.0)*math.sqrt(mtow/50.0)/bt
     
-    def __calculate_landing_fees(self) -> float:
+    def _calculate_landing_fees(self) -> float:
         mtow = self.aircraft["mtow"]
         bt   = self.aircraft["bt"]
 
-        landing_fees = (self.__params.LANDINGUR*mtow)/bt
-        return landing_fees
+        return (self._params.LANDINGUR*mtow)/bt
 
-    def __calculate_cabin_crew_cost(self) -> float:
+    def _calculate_cabin_crew_cost(self) -> float:
         crcabhr = self.aircraft["crcabhr"]
         crewc   = self.aircraft["crewc"]
 
-        cabin_crew = crcabhr*crewc
-        return cabin_crew
+        return crcabhr*crewc
     
-    def __calculate_cockpit_crew_cost(self) -> float:
+    def _calculate_cockpit_crew_cost(self) -> float:
         crtechr  = self.aircraft["crtechr"]
         crewtech = self.aircraft["crewtech"]
 
-        cockpit_crew = crtechr*crewtech
-        return cockpit_crew
+        return crtechr*crewtech
     
-    def __calculate_h2_price(self) -> None:
-        h2_pri         = self.aircraft["h2_pri"]
+    def _calculate_h2_price(self) -> None:
+        h2_pri = self.aircraft["h2_pri"]
         h2_req = self.aircraft["h2_req"]
-        bt            = self.aircraft["bt"]
+        bt     = self.aircraft["bt"]
 
-        h2_price = h2_pri*h2_req/bt
-        return h2_price
+        return h2_pri*h2_req/bt
     
-    def __calculate_electric_energy_price(self) -> None:
-        enerpri         = self.aircraft["enerpri"]
+    def _calculate_electric_energy_price(self) -> None:
+        enerpri  = self.aircraft["enerpri"]
         ener_req = self.aircraft["ener_req"]
-        bt              = self.aircraft["bt"]
+        bt       = self.aircraft["bt"]
 
-        electric_energy_price = ener_req*enerpri/bt
-        return electric_energy_price
+        return ener_req*enerpri/bt
     
-    def __calculate_fuel_cost(self) -> float:
+    def _calculate_fuel_cost(self) -> float:
         fuelpri = self.aircraft["fuelpri"]
         bf      = self.aircraft["bf"]
         bt      = self.aircraft["bt"]
 
-        fuel = (0.328*fuelpri*bf)/bt
-        return fuel
+        return (0.328*fuelpri*bf)/bt
     
-    def __calculate_insurance_cost(self) -> float:
+    def _calculate_insurance_cost(self) -> float:
         rinsh = self.aircraft["rinsh"]
         adp   = self.aircraft["adp"]*1.0e6
         util  = self.aircraft["util"]
 
-        insurance = (rinsh*adp)/util
-        return insurance
+        return (rinsh*adp)/util
     
-    def __calculate_investment(self) -> float:
+    def _calculate_investment(self) -> float:
         adp     = self.aircraft["adp"]*1.0e6
         afspare = self.aircraft["afspare"]
         enpri   = self.aircraft["enpri"]
         en      = self.aircraft["en"]
         enspare = self.aircraft["enspare"]
 
-        invest = adp+(afspare*(adp-enpri*en))+(enspare*enpri*en)
-        return invest
+        return adp+(afspare*(adp-enpri*en))+(enspare*enpri*en)
     
-    def __calculate_interest(self) -> float:
+    def _calculate_interest(self) -> float:
         util = self.aircraft["util"]
 
-        INVEST = self.__calculate_investment()
+        INVEST = self._calculate_investment()
         
-        interest = (0.053*INVEST)/util
-        return interest
+        return (self._params.INTEREST_RATE*INVEST)/util
         
-    def __calculate_depreciation(self) -> float:
+    def _calculate_depreciation(self) -> float:
         rval   = self.aircraft["rval"]
         dyrs   = self.aircraft["dyrs"]
         util   = self.aircraft["util"]
 
-        INVEST = self.__calculate_investment()
+        INVEST = self._calculate_investment()
 
-        depr = ((1-rval)*INVEST)/(dyrs*util)
-        return depr
+        return ((1-rval)*INVEST)/(dyrs*util)

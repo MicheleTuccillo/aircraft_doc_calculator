@@ -1,14 +1,14 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-from doc_calculator.gemseo_discipline.DOC_Calculator import DOC_Calculator
+from doc_calculator.gemseo_discipline.DOC_Calculator import GemseoDirectOperatingCost
 from doc_calculator.core.utils.params import Params
 import numpy as np
 
 params = Params()
-params.HTONN = 150.0
+params.HTONN = 45.0
 
-doc_calc = DOC_Calculator(params=params)
+doc_calc = GemseoDirectOperatingCost(params=params)
 
 
 atr_72 = {

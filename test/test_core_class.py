@@ -4,6 +4,14 @@ sys.path.append(os.getcwd())
 from doc_calculator.core.DOC_Calculator import DirectOperatingCost
 from doc_calculator.core.utils.params import Params 
 
+def display(x:dict) -> None:
+
+    print("\n")
+    for key, value in x.items():
+        print(f"{key}\t{value:.3f}")
+
+    return None
+
 def main() -> None:
 
     # Data for regional turboprop
@@ -45,7 +53,7 @@ def main() -> None:
         "CO2_VALUE": 1875.0, 
     }
 
-    # assign Coefficient of cost of handling per tonn
+    # optional params object
     parameters = Params()
     parameters.HTONN = 45.0
 
@@ -58,8 +66,8 @@ def main() -> None:
 
 
     # display 
-    for key, value in doc_dict.items():
-        print(f"{key}\t{value:.3f}")
+    display(doc_dict)
+    display(ioc_dict)
 
     return None
 

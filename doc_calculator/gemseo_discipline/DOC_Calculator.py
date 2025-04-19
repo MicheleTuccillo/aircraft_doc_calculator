@@ -37,18 +37,18 @@ class GemseoDirectOperatingCost(Discipline):
         doc_calc_object = DirectOperatingCost(aircraft, params=self._params)
 
         # DOC [USD/flight]
-        doc_dict = doc_calc_object.calculate_doc()
+        direct_operating_cost = doc_calc_object.calculate_doc()
 
         # IOC [USD/flight]
-        ioc_dict = doc_calc_object.calculate_ioc()
+        indirect_operating_cost = doc_calc_object.calculate_ioc()
 
-        doc_per_flight = doc_dict["DOC [USD/flight]"]
-        ioc_per_flight = ioc_dict["IOC [USD/flight]"]
-        toc_per_flight = doc_per_flight + ioc_per_flight
+        direct_operating_cost_per_flight   = direct_operating_cost["DOC [USD/flight]"]
+        indirect_operating_cost_per_flight = indirect_operating_cost["IOC [USD/flight]"]
+        total_operating_cost_per_flight    = direct_operating_cost_per_flight + indirect_operating_cost_per_flight
 
         # write output
         return {
-                "DOC": np.array([doc_per_flight]), 
-                "IOC": np.array([ioc_per_flight]), 
-                "TOC": np.array([toc_per_flight])
+                "DOC": np.array([direct_operating_cost_per_flight]), 
+                "IOC": np.array([indirect_operating_cost_per_flight]), 
+                "TOC": np.array([total_operating_cost_per_flight])
                 }

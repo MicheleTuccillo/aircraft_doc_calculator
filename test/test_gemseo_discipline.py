@@ -5,6 +5,7 @@ from doc_calculator.gemseo_discipline.DOC_Calculator import GemseoDirectOperatin
 from doc_calculator.core.utils.params import Params
 import numpy as np
 
+# optional params object
 params = Params()
 params.HTONN = 45.0
 

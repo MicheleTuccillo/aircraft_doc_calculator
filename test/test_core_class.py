@@ -17,13 +17,13 @@ def main() -> None:
         "EN": 2.0,
         "CREWTECH": 2.0,
         "CREWC": 3.0,
-        "BT": 1.35,
+        "BT": 1.05,
         "BF": 1140.0,
         "SECTOR": 200.0,
         "IENG": 1,
         "SHP": 2475.0,
-        "AFSPARE": 0.3,
-        "ENSPARE": 0.1,
+        "AFSPARE": 0.1,
+        "ENSPARE": 0.3,
         "DYRS": 20.0,
         "RVAL": 0.1,
         "RINSH": 0.01,
@@ -34,12 +34,9 @@ def main() -> None:
         "IOC_FACT": 0.65,
         "UTIL": 2100.0,
         "LIFESPAN": 20.0,
-        "TD": 92.0,
-        "TA": 89.0,
         "L_APP": 0.0,
         "L_LAT": 0.0,
         "L_FLYOV": 0.0,
-        "CNOISE": 4.15,
         "CNOX": 3.7,
         "NOX_VALUE":0.0,
         "CCO": 3.7,
@@ -62,7 +59,7 @@ def main() -> None:
 
     # display 
     for key, value in doc_dict.items():
-        print(f"{key}\t{value:.2f}")
+        print(f"{key}\t{value:.3f}")
 
     return None
 

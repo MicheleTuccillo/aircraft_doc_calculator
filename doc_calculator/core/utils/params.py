@@ -11,12 +11,18 @@ class Params():
     - ENR: Enroute navigation charges unit rate.
     - LANDINGUR: Landing charge unit rate.
     - HTONN: Coefficient of cost of handling per tonn of payload
+    - CNOISE: Unit noise rate (Noise tariff that depends on the airport) (USD)
+    - TA : Arrival airport threshold noise (EPNdB)
+    - TD: Departure airport threshold noise (EPNdB)
     """
 
     AEC: float = 0.15
     ENR: float = 68.5
     LANDINGUR: float = 10.0
     HTONN: float = 45.0
+    CNOISE: float = 4.15
+    TA: float = 89.0
+    TD: float = 92.0
 
 default_dict = {"ADP": 0.0,
         "MTOW": 0.0,
@@ -44,12 +50,9 @@ default_dict = {"ADP": 0.0,
         "IOC_FACT": 0.0,
         "UTIL": 1.0,
         "LIFESPAN": 1.0,
-        "TD": 0.0,
-        "TA": 0.0,
         "L_APP": 0.0,
         "L_LAT": 0.0,
         "L_FLYOV": 0.0,
-        "CNOISE": 0.0,
         "CNOX": 0.0,
         "NOX_VALUE":0.0,
         "CCO": 0.0,

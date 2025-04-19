@@ -1,9 +1,8 @@
 from doc_calculator.core.utils.util_functions import _assign_input
 from doc_calculator.core.utils.params import Params 
-import numpy as np
 import math
 
-class DOC():
+class DOC(object):
     def __init__(self, aircraft:dict, params:Params=Params()) -> None:
         """
         ### Description
@@ -43,12 +42,9 @@ class DOC():
         - ioc_fact                    Coeff. for IOC evaluation in [0.0  Inf)
         - util     (BHR/Annum)        Aircraft Annual Utilisation
         - lifespan                    Lifespan of the aircraft (years)
-        - td       (EPNdB)            Departure airport threshold noise
-        - ta       (EPNdB)            Arrival airport threshold noise
         - l_app (EPNdB)               Certified noise level at the approach measure point
         - l_lat (EPNdB)               Certified noise level at the lateral measure point
         - l_flyov (EPNdB)             Certified noise level at the fly-over measure point
-        - cnoise  (USD)               Unit noise rate (Noise tariff that depends on the airport)
 
         - cnox     (USD)           Unit rate for NOX (generally referred to nitrogen oxides) (Emission tariff that depends on the airport)
         - nox_value (Kg)           Emission value of NOX. Equivalent of nitrogen oxide exhausted by an aircraft,
@@ -347,13 +343,14 @@ class DOC():
         return co_emission_charges
     
     def __calculate_noise_charges(self) -> float:
+        ta      = self.__params.TA
+        td      = self.__params.TD
+        cnoise  = self.__params.CNOISE
+
         l_app   = self.aircraft["l_app"]
-        ta      = self.aircraft["ta"]
         l_flyov = self.aircraft["l_flyov"]
         l_lat   = self.aircraft["l_lat"]
-        td      = self.aircraft["td"]
         bt      = self.aircraft["bt"]
-        cnoise  = self.aircraft["cnoise"]
 
         DELTAA = (l_app-ta)/10.0
         DELTAD = (((l_flyov+l_lat)/2.0)-td)/10.0

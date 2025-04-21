@@ -37,6 +37,27 @@ Install the package using `pip`:
 ```bash
 pip install doc_calculator
 ```
+## 📦 Usage
+
+Import the `DirectOperatingCost` class
+
+```bash
+from from doc_calculator import DirectOperatingCost
+```
+
+Prepare Aircraft Input Dictionary
+
+```bash
+aircraft_data = {
+    "bt": 1.5,  # block time in hours
+    "co2_value": 500,  # CO2 emissions per flight in kg
+    "prico2": 0.03,  # CO2 cost per kg in USD
+    "ioc_fact": 0.15,  # IOC factor (fraction)
+    # ... add all other required aircraft parameters
+    }
+```
+⚠️ **Note:** See the source code or documentation for the full list of required aircraft parameters.
+
 ## 📚 References / Citation
 
 If you use `doc_calculator` for academic or research purposes, please cite:

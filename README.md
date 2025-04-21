@@ -42,23 +42,52 @@ pip install doc_calculator
 Import the `DirectOperatingCost` class
 
 ```python
-from from doc_calculator import DirectOperatingCost
+from doc_calculator import DirectOperatingCost
 ```
 
 Prepare Aircraft Input Dictionary
 
 ```python
 aircraft_data = {
-    "adp": 22.0, # aircraft delivery price (M. USD)
-    "mtow": 23.0, # aircraft MTOM in kg
-    "bt": 1.5,  # mission block time (including taxi) in hours
-    "co2_value": 500,  # CO2 emissions per flight in kg
-    "prico2": 0.03,  # CO2 cost per kg in USD
-    "ioc_fact": 0.15,  # IOC factor (fraction)
-    # ... add all other required aircraft parameters
-    }
+    "adp": 85,            # Aircraft Delivery Price (USD M)
+    "mtow": 70,           # Max Take-off Weight (Tonnes)
+    "pld": 18,            # Payload (Tonnes)
+    "mew": 40,            # Manufacturer Empty Weight (Tonnes)
+    "bengw": 1.2,         # Bare engine weight (Tonnes)
+    "enpri": 6.5,         # Engine Price (USD M)
+    "en": 2,              # Number of engines
+    "crewtech": 2,
+    "crewc": 4,
+    "bt": 1.5,            # Sector Block Time (Hours)
+    "bf": 2500,           # Sector Block Fuel (KG)
+    "sector": 600,        # Sector length (NM)
+    "ieng": 1,
+    "shp": 25000,         # Shaft Horse Power (for ieng = 1)
+    "eoc": 0.0,           # (Only used if ieng = 2)
+    "afspare": 0.1,
+    "enspare": 0.3,
+    "dyrs": 15,
+    "rval": 0.15,
+    "rinsh": 0.005,
+    "crtechr": 200,
+    "crcabhr": 50,
+    "labor_rate": 90,
+    "fuelpri": 1.8,
+    "ioc_fact": 0.65,
+    "util": 2800,
+    "lifespan": 20,
+    "l_app": 95.0,
+    "l_lat": 94.0,
+    "l_flyov": 96.0,
+    "cnox": 5,
+    "nox_value": 200,
+    "cco": 4,
+    "co_value": 150,
+    "co2_value": 10000,
+    "prico2": 0.02,
+}
 ```
-> ⚠️ **Note:** See the source code or documentation for the full list of required aircraft parameters.
+> ⚠️ **Note:** Many parameters are optional depending on configuration. Refer to the full list of accepted keys in the docstring of the `__init__` method for more customization.
 
 Create DOC Object and Run Calculations
 
@@ -74,6 +103,43 @@ for key, value in doc_result.items():
 ioc_result = doc_calculator.calculate_ioc()
 for key, value in ioc_result.items():
   print(f"{key}:\t{value}")
+```
+---
+
+To use the GEMSEO discipline, import the `GemseoDirectOperatingCost` class
+
+```python
+from doc_calculator import GemseoDirectOperatingCost
+import numpy as np
+```
+
+Prepare Aircraft Input Dictionary. Make sure to use Numpy arrays.
+
+```python
+aircraft_data = {
+    "adp": np.array([85]),            # Aircraft Delivery Price (USD M)
+    "mtow": np.array([70]),           # Max Take-off Weight (Tonnes)
+    "pld": np.array([18]),            # Payload (Tonnes)
+    "mew": np.array([40]),            # Manufacturer Empty Weight (Tonnes)
+    "bengw": np.array([1.2]),         # Bare engine weight (Tonnes)
+    "enpri": np.array([6.5]),         # Engine Price (USD M)
+    "en": np.array([2]),              # Number of engines
+    "crewtech": np.array([2]),
+    "crewc": np.array([4]),
+    "bt": np.array([1.5]),            # Sector Block Time (Hours)
+    "bf": np.array([2500]),           # Sector Block Fuel (KG)
+    "sector": np.array([600]),        # Sector length (NM)
+
+    # add all other required keys
+}
+```
+
+Create the disciplne and Run Calculations
+
+```python
+doc_displine = GemseoDirectOperatingCost()
+
+out = doc_displine.execute(input_data=aircraft_data)
 ```
 
 ## 📚 References / Citation

@@ -89,10 +89,10 @@ aircraft_data = {
 ```
 > ⚠️ **Note:** Many parameters are optional depending on configuration. Refer to the full list of accepted keys in the docstring of the `__init__` method for more customization.
 
-Create DOC Object and Run Calculations
+Create DirectOperatingCost Object and Run Calculations
 
 ```python
-doc_calculator = DOC(aircraft=aircraft_data)
+doc_calculator = DirectOperatingCost(aircraft=aircraft_data)
 
 # Calculate DOC
 doc_result = doc_calculator.calculate_doc()
@@ -142,7 +142,6 @@ doc_displine = GemseoDirectOperatingCost()
 out = doc_displine.execute(input_data=aircraft_data)
 ```
 
-
 ---
 
 To fully customize the analysis of aircraft operating costs the `Params` dataclass helps you modify typical unit rates, depending on the economic scenario
@@ -160,7 +159,7 @@ parameters = Params()
 parameters.ENR = 85.0   # Unit Rate for the En-route Navigation Charge
 
 # DirectOperatingCost
-doc_calculator = DOC(aircraft=aircraft_data, params=parameters)
+doc_calculator = DirectOperatingCost(aircraft=aircraft_data, params=parameters)
 
 # GemseoDirectOperatingCost
 doc_displine = GemseoDirectOperatingCost(params=parameters)
@@ -173,14 +172,40 @@ doc_displine = GemseoDirectOperatingCost(params=parameters)
 If you use `doc_calculator` for academic or research purposes, please cite:
 
 ```latex
-@software{doc_calculator,
-  author       = {Your Name and Contributors},
-  title        = {doc_calculator: A Python tool for aircraft direct and indirect operating cost modeling},
-  year         = {2025},
-  publisher    = {GitHub},
-  journal      = {GitHub Repository},
-  howpublished = {\url{https://github.com/yourusername/doc_calculator}},
-  version      = {v1.0}
+@article{MARCIELLO2024118517,
+  title   = {Evaluating the economic landscape of hybrid-electric regional aircraft: A cost analysis across three time horizons},
+  journal = {Energy Conversion and Management},
+  volume  = {312},
+  pages   = {118517},
+  year    = {2024},
+  issn    = {0196-8904},
+  doi     = {https://doi.org/10.1016/j.enconman.2024.118517},
+  url     = {https://www.sciencedirect.com/science/article/pii/S0196890424004588},
+  author  = {Valerio Marciello and Vincenzo Cusati and Fabrizio Nicolosi and Karen Saavedra-Rubio and Eleonore Pierrat and Nils Thonemann and Alexis Laurent},
+  keywords = {Direct operating costs, Hybrid electric propulsion, Regional aviation, Technology roadmap, Sustainable aviation},
+}
+
+@manual{EUETS,
+    title = {EU emissions trading system (EU ETS)},
+    key   = {European commission},
+    url   = {https://climate.ec.europa.eu/eu-action/eu-emissions-trading-system-eu-ets_en},
+    year  = {2023}
+}
+
+@book{ATA,
+  author    = {Air Transport Association of America},
+  year      = {1967},
+  title     = {Air Transport Association of America. Standard Method of Estimating Comparative Direct Operating Costs of Turbine Powered Transport Airplanes.},
+  publisher = {The Association},
+  address   = {},
+  edition   = {}
+}
+
+@book{association1989short,
+  title  = {Short medium range aircraft: AEA requirements},
+  author = {Association of European Airlines},
+  url    = {https://books.google.it/books?id=6dz0jgEACAAJ},
+  year   = {1989}
 }
 ```
 

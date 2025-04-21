@@ -35,7 +35,7 @@
 Install the package using `pip`:
 
 ```bash
-pip install doc_calculator
+pip install doc-calculator
 ```
 ## 📦 Usage
 

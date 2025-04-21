@@ -5,7 +5,7 @@ with open("README_PyPi.md", "r") as f:
 
 setup(
     name="doc_calculator",
-    version="0.3.0",
+    version="0.4.0",
     packages=find_packages(),
     install_requires = ["gemseo"],
     long_description=description,

@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-from doc_calculator.gemseo_discipline.DOC_Calculator import GemseoDirectOperatingCost
+from doc_calculator import GemseoDirectOperatingCost
 from doc_calculator.core.utils.params import Params
 import numpy as np
 

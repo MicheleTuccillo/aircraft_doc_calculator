@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.append(os.getcwd())
-from doc_calculator.core.DOC_Calculator import DirectOperatingCost
+from doc_calculator import DirectOperatingCost
 from doc_calculator.core.utils.params import Params 
 
 def display(x:dict) -> None:

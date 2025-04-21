@@ -1,5 +1,5 @@
 from gemseo.core.discipline.discipline import Discipline
-from ..core.DOC_Calculator import DirectOperatingCost
+from ..core import DirectOperatingCost
 from ..core.utils.params import Params
 from .utils.utils_functions import create_default_gemseo_grammar
 import numpy as np

@@ -1,4 +1,5 @@
-from doc_calculator.core.utils.params import default_dict as dt
+#from doc_calculator.core.utils.params import default_dict as dt
+from .params import default_dict as dt
 
 def _assign_input(input:dict) -> dict:
     default_dict = {k.lower(): v for k, v in dt.items()} 

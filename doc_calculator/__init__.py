@@ -1,0 +1,2 @@
+from .core.DOC_Calculator import DirectOperatingCost
+from .gemseo_discipline.DOC_Calculator import GemseoDirectOperatingCost

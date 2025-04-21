@@ -1,5 +1,5 @@
-from doc_calculator.core.utils.util_functions import _assign_input
-from doc_calculator.core.utils.params import Params 
+from .utils.params import Params
+from .utils.util_functions import _assign_input
 from typing import Dict, Tuple
 import math
 

@@ -142,6 +142,32 @@ doc_displine = GemseoDirectOperatingCost()
 out = doc_displine.execute(input_data=aircraft_data)
 ```
 
+
+---
+
+To fully customize the analysis of aircraft operating costs the `Params` dataclass helps you modify typical unit rates, depending on the economic scenario
+
+Import the class
+
+```python
+from doc_calculator.core.utils.params import Params
+```
+
+Modify economic assumptions and pass the object through the `params` keyword
+
+```python
+parameters = Params()
+parameters.ENR = 85.0   # Unit Rate for the En-route Navigation Charge
+
+# DirectOperatingCost
+doc_calculator = DOC(aircraft=aircraft_data, params=parameters)
+
+# GemseoDirectOperatingCost
+doc_displine = GemseoDirectOperatingCost(params=parameters)
+```
+
+> ⚠️ **Note:** See the `Params` class source code for all available unit rates and economic scenario constants
+
 ## 📚 References / Citation
 
 If you use `doc_calculator` for academic or research purposes, please cite:

@@ -41,22 +41,40 @@ pip install doc_calculator
 
 Import the `DirectOperatingCost` class
 
-```bash
+```python
 from from doc_calculator import DirectOperatingCost
 ```
 
 Prepare Aircraft Input Dictionary
 
-```bash
+```python
 aircraft_data = {
-    "bt": 1.5,  # block time in hours
+    "adp": 22.0, # aircraft delivery price (M. USD)
+    "mtow": 23.0, # aircraft MTOM in kg
+    "bt": 1.5,  # mission block time (including taxi) in hours
     "co2_value": 500,  # CO2 emissions per flight in kg
     "prico2": 0.03,  # CO2 cost per kg in USD
     "ioc_fact": 0.15,  # IOC factor (fraction)
     # ... add all other required aircraft parameters
     }
 ```
-⚠️ **Note:** See the source code or documentation for the full list of required aircraft parameters.
+> ⚠️ **Note:** See the source code or documentation for the full list of required aircraft parameters.
+
+Create DOC Object and Run Calculations
+
+```python
+doc_calculator = DOC(aircraft=aircraft_data)
+
+# Calculate DOC
+doc_result = doc_calculator.calculate_doc()
+for key, value in doc_result.items():
+  print(f"{key}:\t{value}")
+
+# Calculate IOC
+ioc_result = doc_calculator.calculate_ioc()
+for key, value in ioc_result.items():
+  print(f"{key}:\t{value}")
+```
 
 ## 📚 References / Citation
 

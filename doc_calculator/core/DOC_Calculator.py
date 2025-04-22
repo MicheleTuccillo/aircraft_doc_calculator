@@ -401,7 +401,7 @@ class DirectOperatingCost(object):
     def _calculate_investment(self) -> float:
         adp     = self.aircraft["adp"]*1.0e6
         afspare = self.aircraft["afspare"]
-        enpri   = self.aircraft["enpri"]
+        enpri   = self.aircraft["enpri"]*1.0e6
         en      = self.aircraft["en"]
         enspare = self.aircraft["enspare"]
 

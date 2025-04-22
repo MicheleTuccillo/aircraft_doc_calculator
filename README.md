@@ -1,4 +1,4 @@
-# ✈️ doc_calculator
+# ✈️ Aircraft Operating Costs Calculator
 
 `doc_calculator` is a Python package designed to calculate **Direct Operating Costs (DOC)** and **Indirect Operating Costs (IOC)** for **short-haul** and **medium-haul** aircraft. It supports both **regional** and **large transport** categories, and includes modules for **hybrid-electric aircraft** configurations.
 
